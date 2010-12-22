@@ -11,10 +11,13 @@ import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.BlockJUnit4ClassRunner;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 @RunWith(BlockJUnit4ClassRunner.class)
 public class StageFlowTest {
 
+    private Logger logger = LoggerFactory.getLogger(this.getClass());
     private DispatcherImpl dispatcher;
 
     /**
@@ -22,7 +25,7 @@ public class StageFlowTest {
      */
     @Test
     public void testStraightFlow() {
-        System.out.println("START: testStraightFlow >>>>>>>>>>>>>>>>>>>>>>>");
+        this.logger.info("START: testStraightFlow >>>>>>>>>>>>>>>>>>>>>>>");
         this.dispatcher.execute("FIRST", new StageFirstEvent("FIRST-Value"));
     }
 
@@ -33,7 +36,7 @@ public class StageFlowTest {
      */
     @Test
     public void testStraightMultipleFlow() throws Throwable {
-        System.out.println("START: testStraightMultipleFlow >>>>>>>>>>>>>>>>>>>>>>>");
+        this.logger.info("START: testStraightMultipleFlow >>>>>>>>>>>>>>>>>>>>>>>");
         StageFirstEvent data = new StageFirstEvent("MULTI-FIRST-Value");
         data.setCount(10);
         this.dispatcher.execute("FIRST", data);
@@ -47,7 +50,7 @@ public class StageFlowTest {
      */
     @Test
     public void testHeavyStraightMultipleFlow() throws Throwable {
-        System.out.println("START: testStraightMultipleFlow >>>>>>>>>>>>>>>>>>>>>>>");
+        this.logger.info("START: testStraightMultipleFlow >>>>>>>>>>>>>>>>>>>>>>>");
         int iterations = 200;
         for (int i = 0; i < iterations; i++) {
             StageFirstEvent data = new StageFirstEvent("MULTI-FIRST-Value");
@@ -84,7 +87,7 @@ public class StageFlowTest {
 
             public RoutingOutcome execute(Data data) {
                 StageFirstEvent sfe = (StageFirstEvent) data;
-                System.out.println(">> First Stage Command: " + sfe.getValue());
+                StageFlowTest.this.logger.info(">> First Stage Command: " + sfe.getValue());
                 RoutingOutcome output = RoutingOutcome.create();
                 for (int i = 0; i < sfe.getCount(); i++) {
                     output.add("SECOND", new StageSecondEvent("SECOND-Value:" + i));
@@ -108,7 +111,7 @@ public class StageFlowTest {
             }
 
             public RoutingOutcome execute(Data data) {
-                System.out.println(">> Second Stage Command: " + ((StageSecondEvent) data).getValue());
+                StageFlowTest.this.logger.info(">> Second Stage Command: " + ((StageSecondEvent) data).getValue());
                 return null;
             }
         };

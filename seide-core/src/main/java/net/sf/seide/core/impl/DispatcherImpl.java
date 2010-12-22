@@ -78,8 +78,12 @@ public class DispatcherImpl
             BlockingQueue<Runnable> queue = new LinkedBlockingQueue<Runnable>();
             ThreadPoolExecutor executor = new ThreadPoolExecutor(event.getStage().getCoreThreads(), event.getStage()
                 .getMaxThreads(), 0L, TimeUnit.MILLISECONDS, queue, new ThreadFactory() {
+
+                private final AtomicLong threadNumber = new AtomicLong(0);
+
                 public Thread newThread(Runnable r) {
-                    return new Thread(r, stageId.toUpperCase() + "_STAGE_THREAD#");
+                    return new Thread(r, DispatcherImpl.this.context.toUpperCase() + "_" + stageId.toUpperCase()
+                        + "_STAGE_THREAD#" + this.threadNumber.incrementAndGet());
                 }
             });
 

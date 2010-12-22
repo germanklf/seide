@@ -1,5 +1,6 @@
 Pending tasks:
 
+000: Add Java-docs!
 001: Add timeout to the operations
 002: Expose system metrics with JMX -> OK
 003: Create parent pom
@@ -8,3 +9,6 @@ Pending tasks:
 006: Shutdown clean up method in the dispatcher -> OK
 007: Review generics usage (StageCommand mainly) -> OK
 008: Refactor to clarify names -> OK?
+009: Controllers to manage the queue growth
+010: Rejection handlers with retry or discarding, configurable per stage.
+011: Add tests with mockito, and assertions! 
