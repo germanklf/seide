@@ -3,11 +3,13 @@ package net.sf.seide.core;
 import java.util.concurrent.ThreadPoolExecutor;
 
 import net.sf.seide.stages.Event;
+import net.sf.seide.stages.Stage;
 import net.sf.seide.stages.StageStatistics;
 import net.sf.seide.stages.impl.StageStatisticsImpl;
 
 public class StageContext {
 
+    private final Stage stage;
     private final String context;
     private final String id;
     private final Event event;
@@ -15,12 +17,17 @@ public class StageContext {
     private final StageStatistics routingStageStats;
     private ThreadPoolExecutor executor;
 
-    public StageContext(Event event) {
-        this.context = event.getStage().getContext();
-        this.id = event.getStage().getId();
-        this.event = event;
+    public StageContext(Stage stage) {
+        this.stage = stage;
+        this.context = stage.getContext();
+        this.id = stage.getId();
+        this.event = stage.getEvent();
         this.stageStats = new StageStatisticsImpl(this.context, this.id);
         this.routingStageStats = new StageStatisticsImpl(this.context, this.id);
+    }
+
+    public Stage getStage() {
+        return this.stage;
     }
 
     public String getId() {

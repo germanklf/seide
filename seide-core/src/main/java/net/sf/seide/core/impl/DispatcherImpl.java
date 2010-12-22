@@ -1,6 +1,7 @@
 package net.sf.seide.core.impl;
 
 import java.lang.management.ManagementFactory;
+import java.text.MessageFormat;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -16,12 +17,16 @@ import java.util.concurrent.atomic.AtomicLong;
 import javax.management.MBeanServer;
 import javax.management.ObjectName;
 
+import net.sf.seide.core.ConfigurationException;
 import net.sf.seide.core.Dispatcher;
+import net.sf.seide.core.DispatcherAware;
 import net.sf.seide.core.DispatcherStatistics;
 import net.sf.seide.core.StageContext;
 import net.sf.seide.stages.Data;
 import net.sf.seide.stages.Event;
 import net.sf.seide.stages.RunnableEventWrapper;
+import net.sf.seide.stages.Stage;
+import net.sf.seide.stages.StageAware;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -37,7 +42,7 @@ public class DispatcherImpl
     private Map<String, StageContext> stagesMap;
 
     private String context;
-    private List<Event> events;
+    private List<Stage> stages;
 
     // control variables
     private volatile boolean shutdownRequired = false;
@@ -65,34 +70,49 @@ public class DispatcherImpl
         this.eventExecutionCount.incrementAndGet();
     }
 
-    public void init() {
+    public void start() {
         // register jmx server
         this.registerMXBean(this, DISPATCHER_MXBEAN_PREFIX + this.context);
 
-        this.stagesMap = new LinkedHashMap<String, StageContext>(this.events.size());
-        // this.executorsMap = new HashMap<String, ThreadPoolExecutor>(this.events.size());
+        this.stagesMap = new LinkedHashMap<String, StageContext>(this.stages.size());
 
-        for (Event event : this.events) {
-            final String stageId = event.getStage().getId();
+        for (Stage stage : this.stages) {
+            final String stageId = stage.getId();
 
             BlockingQueue<Runnable> queue = new LinkedBlockingQueue<Runnable>();
-            ThreadPoolExecutor executor = new ThreadPoolExecutor(event.getStage().getCoreThreads(), event.getStage()
-                .getMaxThreads(), 0L, TimeUnit.MILLISECONDS, queue, new ThreadFactory() {
+            ThreadPoolExecutor executor = new ThreadPoolExecutor(stage.getCoreThreads(), stage.getMaxThreads(), 0L,
+                TimeUnit.MILLISECONDS, queue, new ThreadFactory() {
 
-                private final AtomicLong threadNumber = new AtomicLong(0);
+                    private final AtomicLong threadNumber = new AtomicLong(0);
 
-                public Thread newThread(Runnable r) {
-                    return new Thread(r, DispatcherImpl.this.context.toUpperCase() + "_" + stageId.toUpperCase()
-                        + "_STAGE_THREAD#" + this.threadNumber.incrementAndGet());
-                }
-            });
+                    public Thread newThread(Runnable r) {
+                        return new Thread(r, DispatcherImpl.this.context.toUpperCase() + "_" + stageId.toUpperCase()
+                            + "_ST#" + this.threadNumber.incrementAndGet());
+                    }
+                });
 
-            StageContext stageContext = new StageContext(event);
+            StageContext stageContext = new StageContext(stage);
             stageContext.setExecutor(executor);
 
+            // JMX, everybody loves JMX!
             this.registerMXBean(stageContext.getStageStats(), STAGE_MXBEAN_PREFIX + this.context + "-" + stageId);
             this.registerMXBean(stageContext.getRoutingStageStats(), STAGE_MXBEAN_PREFIX + this.context + "-routing-"
                 + stageId);
+
+            // minimal validation
+            Event event = stage.getEvent();
+            if (event == null) {
+                throw new ConfigurationException(MessageFormat.format(
+                    "Event cannot be null, invalid configuration for stage [{0}@{1}]", stage.getId(), this.context));
+            }
+
+            // dependency injection
+            if (event instanceof StageAware) {
+                ((StageAware) event).setStage(stage);
+            }
+            if (event instanceof DispatcherAware) {
+                ((DispatcherAware) event).setDispatcher(this);
+            }
 
             this.stagesMap.put(stageId, stageContext);
         }
@@ -122,8 +142,8 @@ public class DispatcherImpl
         this.context = context;
     }
 
-    public void setEvents(List<Event> events) {
-        this.events = events;
+    public void setStages(List<Stage> stages) {
+        this.stages = stages;
     }
 
     public void shutdown() {

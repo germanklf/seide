@@ -9,6 +9,8 @@ public class Stage {
     private int coreThreads = 5;
     private int maxThreads = 25;
 
+    private Event event;
+
     public String getContext() {
         return this.context;
     }
@@ -23,6 +25,14 @@ public class Stage {
 
     public void setId(String id) {
         this.id = id;
+    }
+
+    public Event getEvent() {
+        return this.event;
+    }
+
+    public void setEvent(Event event) {
+        this.event = event;
     }
 
     public boolean isMonitoreable() {

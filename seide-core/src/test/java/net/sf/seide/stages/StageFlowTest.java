@@ -63,12 +63,12 @@ public class StageFlowTest {
     @Before
     public void before() {
         this.dispatcher = new DispatcherImpl();
-        List<Event> commands = new LinkedList<Event>();
-        commands.add(this.createFirstStepCommand());
-        commands.add(this.createSecondStepCommand());
-        this.dispatcher.setEvents(commands);
+        List<Stage> stages = new LinkedList<Stage>();
+        stages.add(this.createFirstStepCommand());
+        stages.add(this.createSecondStepCommand());
+        this.dispatcher.setStages(stages);
         this.dispatcher.setContext("Test-" + Long.toHexString(UUID.randomUUID().toString().hashCode()));
-        this.dispatcher.init();
+        this.dispatcher.start();
     }
 
     @After
@@ -76,15 +76,11 @@ public class StageFlowTest {
         this.dispatcher.shutdown();
     }
 
-    private Event createFirstStepCommand() {
-        Event command = new Event() {
-            public Stage getStage() {
-                Stage stage = new Stage();
-                stage.setContext("TEST");
-                stage.setId("FIRST");
-                return stage;
-            }
-
+    private Stage createFirstStepCommand() {
+        Stage stage = new Stage();
+        stage.setContext("TEST");
+        stage.setId("FIRST");
+        stage.setEvent(new Event() {
             public RoutingOutcome execute(Data data) {
                 StageFirstEvent sfe = (StageFirstEvent) data;
                 StageFlowTest.this.logger.info(">> First Stage Command: " + sfe.getValue());
@@ -93,29 +89,24 @@ public class StageFlowTest {
                     output.add("SECOND", new StageSecondEvent("SECOND-Value:" + i));
                 }
                 return output;
-                // return RoutingOutcome.create(, new StageSecondEvent("SECOND-Value"));
             }
-        };
-        return command;
+        });
+        return stage;
     }
 
-    private Event createSecondStepCommand() {
-        Event command = new Event() {
-            public Stage getStage() {
-                Stage stage = new Stage();
-                stage.setContext("TEST");
-                stage.setId("SECOND");
-                stage.setCoreThreads(100);
-                stage.setMaxThreads(100);
-                return stage;
-            }
-
+    private Stage createSecondStepCommand() {
+        Stage stage = new Stage();
+        stage.setContext("TEST");
+        stage.setId("SECOND");
+        stage.setCoreThreads(100);
+        stage.setMaxThreads(100);
+        stage.setEvent(new Event() {
             public RoutingOutcome execute(Data data) {
                 StageFlowTest.this.logger.info(">> Second Stage Command: " + ((StageSecondEvent) data).getValue());
                 return null;
             }
-        };
-        return command;
+        });
+        return stage;
     }
 
     private static class StageFirstEvent

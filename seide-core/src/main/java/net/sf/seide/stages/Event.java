@@ -4,6 +4,4 @@ public interface Event {
 
     RoutingOutcome execute(Data data);
 
-    Stage getStage();
-
 }

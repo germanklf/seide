@@ -4,8 +4,7 @@ import java.util.LinkedList;
 import java.util.Map;
 
 import net.sf.seide.core.Dispatcher;
-import net.sf.seide.core.impl.DispatcherImpl;
-import net.sf.seide.stages.Event;
+import net.sf.seide.stages.Stage;
 
 import org.springframework.beans.BeansException;
 import org.springframework.beans.factory.DisposableBean;
@@ -21,23 +20,25 @@ public class DispatcherFactoryBean
     private String context;
     private Dispatcher dispatcher;
 
+    private DispatcherFactory dispatcherFactory = DefaultDispatcherFactory.createDefault();
+
     @Override
     public Dispatcher getObject() throws Exception {
         if (this.dispatcher != null) {
             return this.dispatcher;
         }
 
-        LinkedList<Event> events = new LinkedList<Event>();
+        LinkedList<Stage> stages = new LinkedList<Stage>();
 
-        Map<String, Event> beansOfType = this.applicationContext.getBeansOfType(Event.class, true, false);
-        for (Event sc : beansOfType.values()) {
-            if (sc.getStage().getContext().equalsIgnoreCase(this.context)) {
-                events.add(sc);
+        Map<String, Stage> beansOfType = this.applicationContext.getBeansOfType(Stage.class, true, false);
+        for (Stage stage : beansOfType.values()) {
+            if (stage.getContext().trim().equalsIgnoreCase(this.context)) {
+                stages.add(stage);
             }
         }
-        DispatcherImpl newDispatcher = new DispatcherImpl();
-        newDispatcher.setEvents(events);
-        newDispatcher.init();
+        Dispatcher newDispatcher = this.dispatcherFactory.create();
+        newDispatcher.setStages(stages);
+        newDispatcher.start();
 
         this.dispatcher = newDispatcher;
 

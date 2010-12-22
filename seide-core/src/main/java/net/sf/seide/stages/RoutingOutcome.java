@@ -25,13 +25,14 @@ public class RoutingOutcome {
         return routingOutcome;
     }
 
-    public void add(String stage, Data data) {
+    public RoutingOutcome add(String stage, Data data) {
         List<Data> events = this.output.get(stage);
         if (events == null) {
             events = new LinkedList<Data>();
             this.output.put(stage, events);
         }
         events.add(data);
+        return this;
     }
 
     public Map<String, List<Data>> getOutput() {
