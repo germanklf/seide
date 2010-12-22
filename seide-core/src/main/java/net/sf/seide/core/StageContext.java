@@ -2,11 +2,22 @@ package net.sf.seide.core;
 
 import java.util.concurrent.ThreadPoolExecutor;
 
+import net.sf.seide.core.impl.DispatcherImpl;
 import net.sf.seide.stages.Event;
 import net.sf.seide.stages.Stage;
 import net.sf.seide.stages.StageStatistics;
 import net.sf.seide.stages.impl.StageStatisticsImpl;
 
+/**
+ * {@link StageContext} represents the {@link DispatcherImpl} internal configuration metadata to route, track stats,
+ * execute.
+ * 
+ * @author german.kondolf
+ * @see {@link Stage}
+ * @see {@link Event}
+ * @see {@link StageStatistics}
+ * @see {@link ThreadPoolExecutor}
+ */
 public class StageContext {
 
     private final Stage stage;

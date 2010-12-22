@@ -31,6 +31,11 @@ import net.sf.seide.stages.StageAware;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+/**
+ * The main {@link Dispatcher} implementation.<br/>
+ * 
+ * @author german.kondolf
+ */
 public class DispatcherImpl
     implements Dispatcher, DispatcherStatistics {
 
