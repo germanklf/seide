@@ -1,0 +1,10 @@
+Pending tasks:
+
+001: Add timeout to the operations
+002: Expose system metrics with JMX -> OK
+003: Create parent pom
+004: Add spring-framework extensions
+005: Add google-guice-framework extensions
+006: Shutdown clean up method in the dispatcher -> OK
+007: Review generics usage (StageCommand mainly) -> OK
+008: Refactor to clarify names -> OK?
