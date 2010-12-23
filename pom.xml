@@ -493,8 +493,8 @@ sp_cleanup.use_this_for_non_static_method_access_only_if_necessary=false
 			<plugin>
 				<groupId>org.codehaus.mojo</groupId>
 				<artifactId>emma-maven-plugin</artifactId>
-				<version>1.0-alpha-2</version>
 				<inherited>true</inherited>
+<!--				<version>1.0-alpha-2</version>-->
 <!--				<executions>-->
 <!--					<execution>-->
 <!--						<phase>process-classes</phase>-->
