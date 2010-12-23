@@ -8,7 +8,7 @@
 	
 	<parent>
 		<groupId>net.seideframework</groupId>
-		<artifactId>seide-parent</artifactId>
+		<artifactId>seide</artifactId>
 		<version>0.1-SNAPSHOT</version>
 		<relativePath>../pom.xml</relativePath>
 	</parent>
