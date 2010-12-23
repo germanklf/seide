@@ -9,6 +9,7 @@ import net.sf.seide.stages.Stage;
 import org.springframework.beans.BeansException;
 import org.springframework.beans.factory.DisposableBean;
 import org.springframework.beans.factory.FactoryBean;
+import org.springframework.beans.factory.annotation.Required;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationContextAware;
 
@@ -39,6 +40,7 @@ public class DispatcherFactoryBean
         Dispatcher newDispatcher = this.dispatcherFactory.create();
         newDispatcher.setStages(stages);
         newDispatcher.start();
+        newDispatcher.setContext(this.context);
 
         this.dispatcher = newDispatcher;
 
@@ -59,6 +61,7 @@ public class DispatcherFactoryBean
         return this.context;
     }
 
+    @Required
     public void setContext(String context) {
         this.context = context;
     }

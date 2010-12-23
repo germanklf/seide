@@ -6,7 +6,7 @@
 	<packaging>pom</packaging>
 	<name>Seide Framework : Parent</name>
 	<version>0.1-SNAPSHOT</version>
-	
+
 	<modules>
 		<module>seide-core</module>
 		<module>seide-spring3</module>
@@ -34,14 +34,14 @@
 				<version>0.1-SNAPSHOT</version>
 			</dependency>
 		</dependencies>
-	</dependencyManagement>	
+	</dependencyManagement>
 
 	<scm>
 		<connection>scm:svn:https://seide.googlecode.com/svn/trunk/</connection>
 		<developerConnection>scm:svn:https://seide.googlecode.com/svn/trunk/</developerConnection>
 		<url>https://seide.googlecode.com/svn/trunk/</url>
 	</scm>
-		
+
 	<build>
 		<plugins>
 			<plugin>
@@ -492,22 +492,28 @@ sp_cleanup.use_this_for_non_static_method_access_only_if_necessary=false
 			</plugin>
 			<plugin>
 				<groupId>org.codehaus.mojo</groupId>
-				<artifactId>cobertura-maven-plugin</artifactId>
-				<version>2.4</version>
-				<configuration>
-					<formats>
-						<format>html</format>
-						<format>xml</format>
-					</formats>
-					<maxMem>1024m</maxMem>
-				</configuration>
+				<artifactId>emma-maven-plugin</artifactId>
+				<version>1.0-alpha-2</version>
+				<inherited>true</inherited>
+				<executions>
+					<execution>
+						<phase>process-classes</phase>
+						<goals>
+							<goal>instrument</goal>
+						</goals>
+					</execution>
+				</executions>
 			</plugin>
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-surefire-plugin</artifactId>
 				<version>2.6</version>
+				<inherited>true</inherited>
 				<configuration>
 					<argLine><![CDATA[-Xms128m -Xmx1024m -Dfile.encoding=UTF-8 -Dsun.jnu.encoding=UTF-8]]></argLine>
+					<forkMode>once</forkMode>
+					<reportFormat>xml</reportFormat>
+					<classesDirectory>${project.build.directory}/generated-classes/emma/classes</classesDirectory>
 				</configuration>
 			</plugin>
 		</plugins>
@@ -523,5 +529,22 @@ sp_cleanup.use_this_for_non_static_method_access_only_if_necessary=false
 			<url>http://tilcara:8080/nexus/content/repositories/snapshots</url>
 		</snapshotRepository>
 	</distributionManagement>
-	
+
+	<reporting>
+		<plugins>
+			<plugin>
+				<groupId>org.codehaus.mojo</groupId>
+				<artifactId>emma-maven-plugin</artifactId>
+				<version>1.0-alpha-2</version>
+				<inherited>true</inherited>
+			</plugin>
+			<plugin>
+				<groupId>org.codehaus.mojo</groupId>
+				<artifactId>surefire-report-maven-plugin</artifactId>
+				<version>2.0-beta-1</version>
+				<inherited>true</inherited>
+			</plugin>
+		</plugins>
+	</reporting>
+
 </project>

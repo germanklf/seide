@@ -42,4 +42,12 @@ public interface Dispatcher {
      */
     void setStages(List<Stage> stages);
 
+    /**
+     * This parameter sets a context, to allow different flows running at the same time and it is propagated in logs &
+     * JXM metrics.
+     * 
+     * @param context
+     */
+    void setContext(String context);
+
 }
