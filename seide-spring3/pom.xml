@@ -4,6 +4,7 @@
 	<groupId>net.sf.seideframework</groupId>
 	<artifactId>seide-spring3</artifactId>
 	<name>Seide Framework : Spring 3 Support</name>
+	<packaging>jar</packaging>
 	<version>0.1-SNAPSHOT</version>
 
 	<parent>

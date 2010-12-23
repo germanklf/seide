@@ -4,6 +4,7 @@
 	<groupId>net.sf.seideframework</groupId>
 	<artifactId>seide-core</artifactId>
 	<name>Seide Framework : Core</name>
+	<packaging>jar</packaging>
 	<version>0.1-SNAPSHOT</version>
 
 	<parent>
