@@ -5,23 +5,34 @@
 	<artifactId>seide-spring3</artifactId>
 	<name>Seide Framework : Spring 3 Support</name>
 	<version>0.1-SNAPSHOT</version>
-	
+
 	<parent>
 		<groupId>net.seideframework</groupId>
 		<artifactId>seide</artifactId>
 		<version>0.1-SNAPSHOT</version>
 		<relativePath>../pom.xml</relativePath>
 	</parent>
-	
+
 	<dependencies>
 		<dependency>
 			<groupId>net.seideframework</groupId>
 			<artifactId>seide-core</artifactId>
 		</dependency>
 		<dependency>
+			<groupId>junit</groupId>
+			<artifactId>junit</artifactId>
+			<scope>test</scope>
+		</dependency>
+		<dependency>
 			<groupId>org.springframework</groupId>
 			<artifactId>spring-context</artifactId>
 			<version>3.0.5.RELEASE</version>
+		</dependency>
+		<dependency>
+			<groupId>org.springframework</groupId>
+			<artifactId>spring-test</artifactId>
+			<version>3.0.5.RELEASE</version>
+			<scope>test</scope>
 		</dependency>
 	</dependencies>
 
