@@ -1,7 +1,7 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
 	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
 	<modelVersion>4.0.0</modelVersion>
-	<groupId>net.seideframework</groupId>
+	<groupId>net.sf.seideframework</groupId>
 	<artifactId>seide</artifactId>
 	<packaging>pom</packaging>
 	<name>Seide Framework : Parent</name>
@@ -24,12 +24,12 @@
 		<dependencies>
 			<!-- Synchronized internal dependencies -->
 			<dependency>
-				<groupId>net.seideframework</groupId>
+				<groupId>net.sf.seideframework</groupId>
 				<artifactId>seide-core</artifactId>
 				<version>0.1-SNAPSHOT</version>
 			</dependency>
 			<dependency>
-				<groupId>net.seideframework</groupId>
+				<groupId>net.sf.seideframework</groupId>
 				<artifactId>seide-spring3</artifactId>
 				<version>0.1-SNAPSHOT</version>
 			</dependency>
@@ -501,15 +501,15 @@ sp_cleanup.use_this_for_non_static_method_access_only_if_necessary=false
 				<groupId>org.codehaus.mojo</groupId>
 				<artifactId>emma-maven-plugin</artifactId>
 				<inherited>true</inherited>
-<!--				<version>1.0-alpha-2</version>-->
-<!--				<executions>-->
-<!--					<execution>-->
-<!--						<phase>process-classes</phase>-->
-<!--						<goals>-->
-<!--							<goal>instrument</goal>-->
-<!--						</goals>-->
-<!--					</execution>-->
-<!--				</executions>-->
+				<!-- <version>1.0-alpha-2</version> -->
+				<!-- <executions> -->
+				<!-- <execution> -->
+				<!-- <phase>process-classes</phase> -->
+				<!-- <goals> -->
+				<!-- <goal>instrument</goal> -->
+				<!-- </goals> -->
+				<!-- </execution> -->
+				<!-- </executions> -->
 			</plugin>
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
@@ -518,9 +518,9 @@ sp_cleanup.use_this_for_non_static_method_access_only_if_necessary=false
 				<inherited>true</inherited>
 				<configuration>
 					<argLine><![CDATA[-Xms128m -Xmx1024m -Dfile.encoding=UTF-8 -Dsun.jnu.encoding=UTF-8]]></argLine>
-<!--					<forkMode>once</forkMode>-->
-<!--					<reportFormat>xml</reportFormat>-->
-<!--					<classesDirectory>${project.build.directory}/generated-classes/emma/classes</classesDirectory>-->
+					<!-- <forkMode>once</forkMode> -->
+					<!-- <reportFormat>xml</reportFormat> -->
+					<!-- <classesDirectory>${project.build.directory}/generated-classes/emma/classes</classesDirectory> -->
 				</configuration>
 			</plugin>
 		</plugins>
