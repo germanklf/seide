@@ -85,13 +85,13 @@ public class StageStatisticsImpl
         // FIXME: buggy... someone could change the value while I'm writting...
         if (!this.minExecutionTime.compareAndSet(-1, time)) {
             long safe = this.minExecutionTime.get();
-            if (safe < time) {
+            if (time < safe) {
                 this.minExecutionTime.compareAndSet(safe, time);
             }
         }
         if (!this.maxExecutionTime.compareAndSet(-1, time)) {
             long safe = this.maxExecutionTime.get();
-            if (safe > time) {
+            if (time > safe) {
                 this.maxExecutionTime.compareAndSet(safe, time);
             }
         }
