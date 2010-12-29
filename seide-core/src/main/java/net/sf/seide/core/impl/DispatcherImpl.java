@@ -6,12 +6,8 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
-import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.Executor;
-import java.util.concurrent.LinkedBlockingQueue;
-import java.util.concurrent.ThreadFactory;
 import java.util.concurrent.ThreadPoolExecutor;
-import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicLong;
 
 import javax.management.MBeanServer;
@@ -27,6 +23,10 @@ import net.sf.seide.stages.Event;
 import net.sf.seide.stages.RunnableEventWrapper;
 import net.sf.seide.stages.Stage;
 import net.sf.seide.stages.StageAware;
+import net.sf.seide.thread.DefaultThreadPoolExecutorFactory;
+import net.sf.seide.thread.JMXConfigurableThreadPoolExecutor;
+import net.sf.seide.thread.JMXEnabledThreadPoolExecutor;
+import net.sf.seide.thread.ThreadPoolExecutorFactory;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -41,10 +41,14 @@ public class DispatcherImpl
 
     private static final String DISPATCHER_MXBEAN_PREFIX = "net.sf.seide.core.impl:type=DispatcherImpl,name=dispatcherImpl-";
     private static final String STAGE_MXBEAN_PREFIX = "net.sf.seide.stage:type=Stage,name=";
+    private static final String THREAD_POOL_EXECUTOR_MXBEAN_PREFIX = "net.sf.seide.thread:type=ThreadPoolExecutor,name=";
 
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
+    // stages map
     private Map<String, StageContext> stagesMap;
+    // use the default TPE factory
+    private ThreadPoolExecutorFactory executorFactory = new DefaultThreadPoolExecutorFactory();
 
     private String context;
     private List<Stage> stages;
@@ -84,17 +88,11 @@ public class DispatcherImpl
         for (Stage stage : this.stages) {
             final String stageId = stage.getId();
 
-            BlockingQueue<Runnable> queue = new LinkedBlockingQueue<Runnable>();
-            ThreadPoolExecutor executor = new ThreadPoolExecutor(stage.getCoreThreads(), stage.getMaxThreads(), 0L,
-                TimeUnit.MILLISECONDS, queue, new ThreadFactory() {
-
-                    private final AtomicLong threadNumber = new AtomicLong(0);
-
-                    public Thread newThread(Runnable r) {
-                        return new Thread(r, DispatcherImpl.this.context.toUpperCase() + "_" + stageId.toUpperCase()
-                            + "_ST#" + this.threadNumber.incrementAndGet());
-                    }
-                });
+            ThreadPoolExecutor executor = this.executorFactory.create(this, stage);
+            // register the JMX if applies
+            if (this.isThreadPoolExecutorJMXEnabled(executor)) {
+                this.registerMXBean(executor, THREAD_POOL_EXECUTOR_MXBEAN_PREFIX + this.context + "-" + stageId);
+            }
 
             StageContext stageContext = new StageContext(stage);
             stageContext.setExecutor(executor);
@@ -123,6 +121,10 @@ public class DispatcherImpl
         }
     }
 
+    private boolean isThreadPoolExecutorJMXEnabled(ThreadPoolExecutor executor) {
+        return executor instanceof JMXEnabledThreadPoolExecutor || executor instanceof JMXConfigurableThreadPoolExecutor;
+    }
+
     private void registerMXBean(Object object, String name) {
         this.logger.info("Registering MBean [" + name + "]...");
         MBeanServer mbs = ManagementFactory.getPlatformMBeanServer();
@@ -141,6 +143,15 @@ public class DispatcherImpl
         } catch (Exception e) {
             this.logger.error("Error unregistering MBean: [" + name + "]", e);
         }
+    }
+
+    @Override
+    public void setExecutorFactory(ThreadPoolExecutorFactory executorFactory) {
+        this.executorFactory = executorFactory;
+    }
+
+    public String getContext() {
+        return this.context;
     }
 
     public void setContext(String context) {
@@ -169,6 +180,12 @@ public class DispatcherImpl
             String stageId = entry.getKey();
             this.unregisterMXBean(STAGE_MXBEAN_PREFIX + this.context + "-" + stageId);
             this.unregisterMXBean(STAGE_MXBEAN_PREFIX + this.context + "-routing-" + stageId);
+
+            // unregister TPE if applies
+            ThreadPoolExecutor executor = entry.getValue().getExecutor();
+            if (this.isThreadPoolExecutorJMXEnabled(executor)) {
+                this.unregisterMXBean(THREAD_POOL_EXECUTOR_MXBEAN_PREFIX + this.context + "-" + stageId);
+            }
         }
         this.unregisterMXBean(DISPATCHER_MXBEAN_PREFIX + this.context);
     }
