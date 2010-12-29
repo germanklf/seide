@@ -40,7 +40,6 @@ public class StageFlowTest {
         StageFirstEvent data = new StageFirstEvent("MULTI-FIRST-Value");
         data.setCount(10);
         this.dispatcher.execute("FIRST", data);
-        // Thread.sleep(1000 * 130);
     }
 
     /**
@@ -52,12 +51,14 @@ public class StageFlowTest {
     public void testHeavyStraightMultipleFlow() throws Throwable {
         this.logger.info("START: testStraightMultipleFlow >>>>>>>>>>>>>>>>>>>>>>>");
         int iterations = 200;
+        // int iterations = 200000;
         for (int i = 0; i < iterations; i++) {
             StageFirstEvent data = new StageFirstEvent("MULTI-FIRST-Value");
             data.setCount(10);
             this.dispatcher.execute("FIRST", data);
         }
         Thread.sleep(1000 * 1);
+        // Thread.sleep(1000 * 130);
     }
 
     @Before

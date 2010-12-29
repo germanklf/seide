@@ -39,9 +39,9 @@ import org.slf4j.LoggerFactory;
 public class DispatcherImpl
     implements Dispatcher, DispatcherStatistics {
 
-    private static final String DISPATCHER_MXBEAN_PREFIX = "net.sf.seide.core.impl:type=DispatcherImpl,name=dispatcherImpl-";
-    private static final String STAGE_MXBEAN_PREFIX = "net.sf.seide.stage:type=Stage,name=";
-    private static final String THREAD_POOL_EXECUTOR_MXBEAN_PREFIX = "net.sf.seide.thread:type=ThreadPoolExecutor,name=";
+    private static final String DISPATCHER_MXBEAN_PREFIX = "net.sf.seide.core.impl:type=DispatcherImpl,name=dispatcher-";
+    private static final String STAGE_MXBEAN_PREFIX = "net.sf.seide.stage:type=Stage,name=stage-";
+    private static final String THREAD_POOL_EXECUTOR_MXBEAN_PREFIX = "net.sf.seide.thread:type=ThreadPoolExecutor,name=tpe-";
 
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
