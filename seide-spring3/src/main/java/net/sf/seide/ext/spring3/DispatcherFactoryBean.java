@@ -5,6 +5,8 @@ import java.util.Map;
 
 import net.sf.seide.core.Dispatcher;
 import net.sf.seide.stages.Stage;
+import net.sf.seide.thread.DefaultThreadPoolExecutorFactory;
+import net.sf.seide.thread.ThreadPoolExecutorFactory;
 
 import org.springframework.beans.BeansException;
 import org.springframework.beans.factory.DisposableBean;
@@ -13,7 +15,15 @@ import org.springframework.beans.factory.annotation.Required;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationContextAware;
 
-
+/**
+ * A {@link FactoryBean} that creates a {@link Dispatcher} configured with the {@link ThreadPoolExecutorFactory} and
+ * exploring the context to retrieve automatically the {@link Stage}s with the same {@link #context} that this bean.
+ * 
+ * @see {@link Dispatcher}
+ * @see {@link DispatcherFactory}
+ * @see {@link ThreadPoolExecutorFactory}
+ * @author german.kondolf
+ */
 public class DispatcherFactoryBean
     implements FactoryBean<Dispatcher>, ApplicationContextAware, DisposableBean {
 
@@ -22,6 +32,8 @@ public class DispatcherFactoryBean
     private Dispatcher dispatcher;
 
     private DispatcherFactory dispatcherFactory = DefaultDispatcherFactory.createDefault();
+
+    private ThreadPoolExecutorFactory executorFactory = new DefaultThreadPoolExecutorFactory();
 
     @Override
     public Dispatcher getObject() throws Exception {
@@ -39,8 +51,9 @@ public class DispatcherFactoryBean
         }
         Dispatcher newDispatcher = this.dispatcherFactory.create();
         newDispatcher.setStages(stages);
-        newDispatcher.start();
         newDispatcher.setContext(this.context);
+        newDispatcher.setExecutorFactory(this.executorFactory);
+        newDispatcher.start();
 
         this.dispatcher = newDispatcher;
 
@@ -64,6 +77,10 @@ public class DispatcherFactoryBean
     @Required
     public void setContext(String context) {
         this.context = context;
+    }
+
+    public void setExecutorFactory(ThreadPoolExecutorFactory executorFactory) {
+        this.executorFactory = executorFactory;
     }
 
     @Override
