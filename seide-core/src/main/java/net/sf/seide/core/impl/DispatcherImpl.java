@@ -87,14 +87,13 @@ public class DispatcherImpl
 
         for (Stage stage : this.stages) {
             final String stageId = stage.getId();
+            final StageContext stageContext = new StageContext(stage);
 
-            ThreadPoolExecutor executor = this.executorFactory.create(this, stage);
+            final ThreadPoolExecutor executor = this.executorFactory.create(this, stageContext);
             // register the JMX if applies
             if (this.isThreadPoolExecutorJMXEnabled(executor)) {
                 this.registerMXBean(executor, THREAD_POOL_EXECUTOR_MXBEAN_PREFIX + this.context + "-" + stageId);
             }
-
-            StageContext stageContext = new StageContext(stage);
             stageContext.setExecutor(executor);
 
             // JMX, everybody loves JMX!

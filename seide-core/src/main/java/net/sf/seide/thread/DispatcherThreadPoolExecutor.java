@@ -26,14 +26,15 @@ public class DispatcherThreadPoolExecutor
             namePrefix, Thread.NORM_PRIORITY), new DiscardPolicy());
     }
 
-    public DispatcherThreadPoolExecutor(String namePrefix, int corePoolSize) {
-        this(corePoolSize, corePoolSize, Integer.MAX_VALUE, TimeUnit.SECONDS, new LinkedBlockingQueue<Runnable>(),
-            new DefaultThreadFactory(namePrefix, Thread.NORM_PRIORITY), new DiscardPolicy());
-    }
-
     public DispatcherThreadPoolExecutor(String namePrefix, int corePoolSize, int maxPoolSize) {
         this(corePoolSize, maxPoolSize, Integer.MAX_VALUE, TimeUnit.SECONDS, new LinkedBlockingQueue<Runnable>(),
             new DefaultThreadFactory(namePrefix, Thread.NORM_PRIORITY), new DiscardPolicy());
+    }
+
+    public DispatcherThreadPoolExecutor(String namePrefix, int corePoolSize, int maximumPoolSize, int maxQueueSize,
+        RejectedExecutionHandler handler) {
+        super(corePoolSize, maximumPoolSize, Integer.MAX_VALUE, TimeUnit.SECONDS, new LinkedBlockingQueue<Runnable>(
+            maxQueueSize), new DefaultThreadFactory(namePrefix, Thread.NORM_PRIORITY), handler);
     }
 
     public DispatcherThreadPoolExecutor(int corePoolSize, int maximumPoolSize, long keepAliveTime, TimeUnit unit,
@@ -44,12 +45,12 @@ public class DispatcherThreadPoolExecutor
 
     @Override
     public long getCompletedTasks() {
-        return super.getCompletedTaskCount();
+        return this.getCompletedTaskCount();
     }
 
     @Override
     public long getPendingTasks() {
-        return super.getQueue().size();
+        return this.getQueue().size();
     }
 
 }

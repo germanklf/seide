@@ -3,6 +3,7 @@ package net.sf.seide.thread;
 import java.util.concurrent.ThreadPoolExecutor;
 
 import net.sf.seide.core.Dispatcher;
+import net.sf.seide.core.StageContext;
 import net.sf.seide.stages.Stage;
 
 /**
@@ -14,10 +15,16 @@ import net.sf.seide.stages.Stage;
 public class DefaultThreadPoolExecutorFactory
     implements ThreadPoolExecutorFactory {
 
-    public ThreadPoolExecutor create(Dispatcher dispatcher, Stage stage) {
-        ThreadPoolExecutor executor = new DispatcherThreadPoolExecutor(dispatcher.getContext() + "_" + stage.getId()
-            + "_ST#", stage.getCoreThreads(), stage.getMaxThreads());
+    public ThreadPoolExecutor create(Dispatcher dispatcher, StageContext stageContext) {
+        Stage stage = stageContext.getStage();
+        ThreadPoolExecutor executor;
+        if (stage.getMaxQueueSize() > 0) {
+            executor = new DispatcherThreadPoolExecutor(dispatcher.getContext() + "_" + stage.getId() + "_ST#",
+                stage.getCoreThreads(), stage.getMaxThreads(), stage.getMaxQueueSize(), new LoadSheddingPolicy(stageContext));
+        } else {
+            executor = new DispatcherThreadPoolExecutor(dispatcher.getContext() + "_" + stage.getId() + "_ST#",
+                stage.getCoreThreads(), stage.getMaxThreads());
+        }
         return executor;
     }
-
 }

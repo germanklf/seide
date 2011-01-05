@@ -31,6 +31,14 @@ public interface StageStatistics {
 
     void removeRunning();
 
+    long getDiscardedExecutions();
+
+    long getRetryedExecutions();
+
+    void trackDiscardedExecution();
+
+    void trackRetry();
+
     void trackTimeAndExecution(long time);
 
 }

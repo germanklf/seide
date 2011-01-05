@@ -1,5 +1,6 @@
 package net.sf.seide.stages;
 
+
 public class Stage {
 
     private String context;
@@ -8,6 +9,7 @@ public class Stage {
     private boolean loggeable = true;
     private int coreThreads = 5;
     private int maxThreads = 25;
+    private int maxQueueSize = 0;
 
     private Event event;
 
@@ -65,6 +67,14 @@ public class Stage {
 
     public void setMaxThreads(int maxThreads) {
         this.maxThreads = maxThreads;
+    }
+
+    public int getMaxQueueSize() {
+        return this.maxQueueSize;
+    }
+
+    public void setMaxQueueSize(int maxQueueSize) {
+        this.maxQueueSize = maxQueueSize;
     }
 
 }

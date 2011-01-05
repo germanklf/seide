@@ -16,6 +16,8 @@ public class StageStatisticsImpl
     private final AtomicLong minExecutionTime = new AtomicLong(-1);
     private final AtomicLong maxExecutionTime = new AtomicLong(-1);
 
+    private final AtomicLong discardedExecutions = new AtomicLong(0);
+
     public StageStatisticsImpl(String context, String id) {
         this.context = context;
         this.id = id;
@@ -78,8 +80,27 @@ public class StageStatisticsImpl
         this.running.decrementAndGet();
     }
 
-    public void trackTimeAndExecution(long time) {
+    public long getDiscardedExecutions() {
+        return this.discardedExecutions.get();
+    }
+
+    public long getRetryedExecutions() {
+        // not implemented
+        return 0;
+    }
+
+    public void trackRetry() {
+        // not implemented
+    }
+
+    public void trackDiscardedExecution() {
+        this.discardedExecutions.incrementAndGet();
+    }
+
+    public void trackTimeAndExecution(long timeInNanos) {
         this.totalExecutions.incrementAndGet();
+
+        long time = timeInNanos / 1000;
         this.totalExecutionTime.addAndGet(time);
 
         // FIXME: buggy... someone could change the value while I'm writting...
@@ -96,5 +117,6 @@ public class StageStatisticsImpl
             }
         }
     }
+
 
 }

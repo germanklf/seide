@@ -12,11 +12,11 @@ import net.sf.seide.stages.impl.StageStatisticsImpl;
  * {@link StageContext} represents the {@link DispatcherImpl} internal configuration metadata to route, track stats,
  * execute.
  * 
- * @author german.kondolf
  * @see {@link Stage}
  * @see {@link Event}
  * @see {@link StageStatistics}
  * @see {@link ThreadPoolExecutor}
+ * @author german.kondolf
  */
 public class StageContext {
 
