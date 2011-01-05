@@ -10,9 +10,9 @@ import java.util.concurrent.CountDownLatch;
 import net.sf.seide.core.StageContext;
 import net.sf.seide.core.impl.DispatcherImpl;
 
+import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.BlockJUnit4ClassRunner;
@@ -20,7 +20,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.util.ReflectionUtils;
 
-@Ignore
 @RunWith(BlockJUnit4ClassRunner.class)
 public class LoadSheddingTest {
 
@@ -33,8 +32,13 @@ public class LoadSheddingTest {
     @SuppressWarnings("unchecked")
     @Test
     public void testLoadShedding() throws Throwable {
+        // 2 running...
         this.dispatcher.execute("OVERLOAD", null);
         this.dispatcher.execute("OVERLOAD", null);
+        // 2 max waiting...
+        this.dispatcher.execute("OVERLOAD", null);
+        this.dispatcher.execute("OVERLOAD", null);
+        // 2 discarded...
         this.dispatcher.execute("OVERLOAD", null);
         this.dispatcher.execute("OVERLOAD", null);
 
@@ -68,13 +72,18 @@ public class LoadSheddingTest {
         this.dispatcher.start();
     }
 
+    @After
+    public void after() {
+        this.dispatcher.shutdown();
+    }
+
     private Stage createStageEvent() {
         Stage stage = new Stage();
         stage.setContext("TEST");
         stage.setId("OVERLOAD");
         stage.setMaxQueueSize(2);
-        stage.setCoreThreads(10);
-        stage.setMaxThreads(10);
+        stage.setCoreThreads(2);
+        stage.setMaxThreads(2);
         stage.setEvent(new AbstractGenericEvent<Data>() {
             @Override
             protected RoutingOutcome exec(Data data) {
