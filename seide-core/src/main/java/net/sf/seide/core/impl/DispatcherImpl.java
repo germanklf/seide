@@ -17,10 +17,11 @@ import net.sf.seide.core.ConfigurationException;
 import net.sf.seide.core.Dispatcher;
 import net.sf.seide.core.DispatcherAware;
 import net.sf.seide.core.DispatcherStatistics;
-import net.sf.seide.core.StageContext;
+import net.sf.seide.core.RuntimeStage;
+import net.sf.seide.event.Event;
 import net.sf.seide.stages.Data;
-import net.sf.seide.stages.Event;
-import net.sf.seide.stages.RunnableEventWrapper;
+import net.sf.seide.stages.EventHandler;
+import net.sf.seide.stages.RunnableEventHandlerWrapper;
 import net.sf.seide.stages.Stage;
 import net.sf.seide.stages.StageAware;
 import net.sf.seide.thread.DefaultThreadPoolExecutorFactory;
@@ -46,7 +47,7 @@ public class DispatcherImpl
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
     // stages map
-    private Map<String, StageContext> stagesMap;
+    private Map<String, RuntimeStage> stagesMap;
     // use the default TPE factory
     private ThreadPoolExecutorFactory executorFactory = new DefaultThreadPoolExecutorFactory();
 
@@ -60,20 +61,27 @@ public class DispatcherImpl
     private AtomicLong eventExecutionCount = new AtomicLong(0);
 
     public void execute(String stage, Data data) {
+        this.execute(new Event(stage, data));
+    }
+
+    public void execute(Event event) {
+        final String stage = event.getStage();
+        final Data data = event.getData();
+
         if (this.shutdownRequired) {
             this.logger.info("Stage execution rejected for stage [" + stage + "], shutdown required!");
             return;
         }
 
-        StageContext stageContext = this.stagesMap.get(stage);
-        if (stageContext == null) {
+        RuntimeStage runtimeStage = this.stagesMap.get(stage);
+        if (runtimeStage == null) {
             throw new RuntimeException("Stage [" + stage + "] is undefined.");
         }
 
-        RunnableEventWrapper runnableEventWrapper = new RunnableEventWrapper(this, stageContext, data);
+        RunnableEventHandlerWrapper runnableEventHandlerWrapper = new RunnableEventHandlerWrapper(this, runtimeStage, data);
 
-        Executor executor = stageContext.getExecutor();
-        executor.execute(runnableEventWrapper);
+        Executor executor = runtimeStage.getExecutor();
+        executor.execute(runnableEventHandlerWrapper);
 
         // track!
         this.eventExecutionCount.incrementAndGet();
@@ -83,40 +91,40 @@ public class DispatcherImpl
         // register jmx server
         this.registerMXBean(this, DISPATCHER_MXBEAN_PREFIX + this.context);
 
-        this.stagesMap = new LinkedHashMap<String, StageContext>(this.stages.size());
+        this.stagesMap = new LinkedHashMap<String, RuntimeStage>(this.stages.size());
 
         for (Stage stage : this.stages) {
             final String stageId = stage.getId();
-            final StageContext stageContext = new StageContext(stage);
+            final RuntimeStage runtimeStage = new RuntimeStage(stage);
 
-            final ThreadPoolExecutor executor = this.executorFactory.create(this, stageContext);
+            final ThreadPoolExecutor executor = this.executorFactory.create(this, runtimeStage);
             // register the JMX if applies
             if (this.isThreadPoolExecutorJMXEnabled(executor)) {
                 this.registerMXBean(executor, THREAD_POOL_EXECUTOR_MXBEAN_PREFIX + this.context + "-" + stageId);
             }
-            stageContext.setExecutor(executor);
+            runtimeStage.setExecutor(executor);
 
             // JMX, everybody loves JMX!
-            this.registerMXBean(stageContext.getStageStats(), STAGE_MXBEAN_PREFIX + this.context + "-" + stageId);
-            this.registerMXBean(stageContext.getRoutingStageStats(), STAGE_MXBEAN_PREFIX + this.context + "-routing-"
+            this.registerMXBean(runtimeStage.getStageStats(), STAGE_MXBEAN_PREFIX + this.context + "-" + stageId);
+            this.registerMXBean(runtimeStage.getRoutingStageStats(), STAGE_MXBEAN_PREFIX + this.context + "-routing-"
                 + stageId);
 
             // minimal validation
-            Event event = stage.getEvent();
-            if (event == null) {
+            EventHandler eventHandler = stage.getEventHandler();
+            if (eventHandler == null) {
                 throw new ConfigurationException(MessageFormat.format(
-                    "Event cannot be null, invalid configuration for stage [{0}@{1}]", stage.getId(), this.context));
+                    "EventHandler cannot be null, invalid configuration for stage [{0}@{1}]", stage.getId(), this.context));
             }
 
             // dependency injection
-            if (event instanceof StageAware) {
-                ((StageAware) event).setStage(stage);
+            if (eventHandler instanceof StageAware) {
+                ((StageAware) eventHandler).setStage(stage);
             }
-            if (event instanceof DispatcherAware) {
-                ((DispatcherAware) event).setDispatcher(this);
+            if (eventHandler instanceof DispatcherAware) {
+                ((DispatcherAware) eventHandler).setDispatcher(this);
             }
 
-            this.stagesMap.put(stageId, stageContext);
+            this.stagesMap.put(stageId, runtimeStage);
         }
     }
 
@@ -165,7 +173,7 @@ public class DispatcherImpl
         this.shutdownRequired = true;
 
         // shutdown the threadpools...
-        for (Entry<String, StageContext> entry : this.stagesMap.entrySet()) {
+        for (Entry<String, RuntimeStage> entry : this.stagesMap.entrySet()) {
             String stage = entry.getKey();
             ThreadPoolExecutor tpe = entry.getValue().getExecutor();
             List<Runnable> remaining = tpe.shutdownNow();
@@ -175,7 +183,7 @@ public class DispatcherImpl
         }
 
         // clean up
-        for (Entry<String, StageContext> entry : this.stagesMap.entrySet()) {
+        for (Entry<String, RuntimeStage> entry : this.stagesMap.entrySet()) {
             String stageId = entry.getKey();
             this.unregisterMXBean(STAGE_MXBEAN_PREFIX + this.context + "-" + stageId);
             this.unregisterMXBean(STAGE_MXBEAN_PREFIX + this.context + "-routing-" + stageId);

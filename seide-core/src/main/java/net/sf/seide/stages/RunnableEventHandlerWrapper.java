@@ -1,26 +1,24 @@
 package net.sf.seide.stages;
 
-import java.util.List;
-import java.util.Map.Entry;
-
 import net.sf.seide.core.Dispatcher;
-import net.sf.seide.core.StageContext;
+import net.sf.seide.core.RuntimeStage;
+import net.sf.seide.event.Event;
 
-public class RunnableEventWrapper
+public class RunnableEventHandlerWrapper
     implements Runnable {
 
     private final Dispatcher dispatcher;
-    private final StageContext stageContext;
+    private final RuntimeStage runtimeStage;
     private final Data data;
     private final StageStatistics stageStats;
     private final StageStatistics routingStageStats;
 
-    public RunnableEventWrapper(Dispatcher dispatcher, StageContext stageContext, Data data) {
+    public RunnableEventHandlerWrapper(Dispatcher dispatcher, RuntimeStage runtimeStage, Data data) {
         this.dispatcher = dispatcher;
-        this.stageContext = stageContext;
+        this.runtimeStage = runtimeStage;
         this.data = data;
-        this.stageStats = stageContext.getStageStats();
-        this.routingStageStats = stageContext.getRoutingStageStats();
+        this.stageStats = runtimeStage.getStageStats();
+        this.routingStageStats = runtimeStage.getRoutingStageStats();
 
         // asume that a creating means a pending...
         this.stageStats.addPending();
@@ -37,7 +35,7 @@ public class RunnableEventWrapper
         time = System.nanoTime();
 
         // execution
-        RoutingOutcome routingOutcome = this.stageContext.getEvent().execute(this.data);
+        RoutingOutcome routingOutcome = this.runtimeStage.getEventHandler().execute(this.data);
 
         // tracking & remove running...
         this.stageStats.trackTimeAndExecution(System.nanoTime() - time);
@@ -47,10 +45,8 @@ public class RunnableEventWrapper
         this.routingStageStats.addRunning();
         time = System.nanoTime();
         if (routingOutcome != null && !routingOutcome.isEmpty()) {
-            for (Entry<String, List<Data>> events : routingOutcome.getOutput().entrySet()) {
-                for (Data event : events.getValue()) {
-                    this.dispatcher.execute(events.getKey(), event);
-                }
+            for (Event e : routingOutcome.getEvents()) {
+                this.dispatcher.execute(e);
             }
         }
         this.routingStageStats.trackTimeAndExecution(System.nanoTime() - time);

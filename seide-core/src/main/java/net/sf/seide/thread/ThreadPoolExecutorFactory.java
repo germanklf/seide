@@ -3,7 +3,7 @@ package net.sf.seide.thread;
 import java.util.concurrent.ThreadPoolExecutor;
 
 import net.sf.seide.core.Dispatcher;
-import net.sf.seide.core.StageContext;
+import net.sf.seide.core.RuntimeStage;
 import net.sf.seide.stages.Stage;
 
 /**
@@ -13,6 +13,6 @@ import net.sf.seide.stages.Stage;
  */
 public interface ThreadPoolExecutorFactory {
 
-    ThreadPoolExecutor create(Dispatcher dispatcher, StageContext stageContext);
+    ThreadPoolExecutor create(Dispatcher dispatcher, RuntimeStage runtimeStage);
 
 }

@@ -81,7 +81,7 @@ public class StageFlowTest {
         Stage stage = new Stage();
         stage.setContext("TEST");
         stage.setId("FIRST");
-        stage.setEvent(new Event() {
+        stage.setEventHandler(new EventHandler() {
             public RoutingOutcome execute(Data data) {
                 StageFirstEvent sfe = (StageFirstEvent) data;
                 StageFlowTest.this.logger.info(">> First Stage Command: " + sfe.getValue());
@@ -101,7 +101,7 @@ public class StageFlowTest {
         stage.setId("SECOND");
         stage.setCoreThreads(100);
         stage.setMaxThreads(100);
-        stage.setEvent(new Event() {
+        stage.setEventHandler(new EventHandler() {
             public RoutingOutcome execute(Data data) {
                 StageFlowTest.this.logger.info(">> Second Stage Command: " + ((StageSecondEvent) data).getValue());
                 return null;

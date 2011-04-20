@@ -3,8 +3,9 @@ package net.sf.seide.core;
 import java.util.List;
 import java.util.concurrent.ThreadPoolExecutor;
 
+import net.sf.seide.event.Event;
 import net.sf.seide.stages.Data;
-import net.sf.seide.stages.Event;
+import net.sf.seide.stages.EventHandler;
 import net.sf.seide.stages.Stage;
 import net.sf.seide.thread.ThreadPoolExecutorFactory;
 
@@ -13,7 +14,7 @@ import net.sf.seide.thread.ThreadPoolExecutorFactory;
  * 
  * @author german.kondolf
  * @see {@link Stage}
- * @see {@link Event}
+ * @see {@link EventHandler}
  * @see {@link Data}
  */
 public interface Dispatcher {
@@ -24,12 +25,20 @@ public interface Dispatcher {
     void start();
 
     /**
-     * Routes the {@link Data} to the specified {@link Stage} executing the associated {@link Event}.
+     * Routes the {@link Data} to the specified {@link Stage} executing the associated {@link EventHandler}.
      * 
      * @param stage {@link Stage#id}
      * @param data payload.
      */
     void execute(String stage, Data data);
+
+    /**
+     * Routes the {@link Event} to the specified {@link Stage} executing the associated {@link EventHandler}.
+     * 
+     * @param stage {@link Stage#id}
+     * @param data payload.
+     */
+    void execute(Event event);
 
     /**
      * Shutdown & clean up method. The invocation dries out the instance, it's not supposed to be re-starteable by
@@ -38,7 +47,7 @@ public interface Dispatcher {
     void shutdown();
 
     /**
-     * {@link Stage} list of supported flow {@link Event}.
+     * {@link Stage} list of supported flow {@link EventHandler}.
      * 
      * @param stages {@link Stage} list.
      */

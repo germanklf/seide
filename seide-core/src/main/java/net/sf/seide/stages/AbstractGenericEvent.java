@@ -1,7 +1,7 @@
 package net.sf.seide.stages;
 
 /**
- * This abstraction of {@link Event} just casts the value received from parameter as {@link Data} to the given
+ * This abstraction of {@link EventHandler} just casts the value received from parameter as {@link Data} to the given
  * parametric type.
  * 
  * @author german.kondolf
@@ -9,10 +9,10 @@ package net.sf.seide.stages;
  * @param <T> concrete {@link Data} type.
  */
 public abstract class AbstractGenericEvent<T extends Data>
-    implements Event {
+    implements EventHandler {
 
     /**
-     * Delegate templated execution to {@link Event#execute(Data)}.
+     * Delegate templated execution to {@link EventHandler#execute(Data)}.
      * 
      * @param data {@link Data} as T
      * @return

@@ -10,8 +10,8 @@
 		p:context="test" />
 
 	<bean id="stage" class="net.sf.seide.stages.Stage" p:id="event0"
-		p:context="test" p:event-ref="event" />
+		p:context="test" p:eventHandler-ref="eventHandler" />
 
-	<bean id="event" class="net.sf.seide.ext.spring3.MockEvent" />
+	<bean id="eventHandler" class="net.sf.seide.ext.spring3.MockEvent" />
 
 </beans>

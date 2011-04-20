@@ -11,7 +11,7 @@ public class Stage {
     private int maxThreads = 25;
     private int maxQueueSize = 0;
 
-    private Event event;
+    private EventHandler eventHandler;
 
     public String getContext() {
         return this.context;
@@ -29,12 +29,12 @@ public class Stage {
         this.id = id;
     }
 
-    public Event getEvent() {
-        return this.event;
+    public EventHandler getEventHandler() {
+        return this.eventHandler;
     }
 
-    public void setEvent(Event event) {
-        this.event = event;
+    public void setEventHandler(EventHandler eventHandler) {
+        this.eventHandler = eventHandler;
     }
 
     public boolean isMonitoreable() {

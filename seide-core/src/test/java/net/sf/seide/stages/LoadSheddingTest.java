@@ -7,7 +7,7 @@ import java.util.Map;
 import java.util.UUID;
 import java.util.concurrent.CountDownLatch;
 
-import net.sf.seide.core.StageContext;
+import net.sf.seide.core.RuntimeStage;
 import net.sf.seide.core.impl.DispatcherImpl;
 
 import org.junit.After;
@@ -47,14 +47,14 @@ public class LoadSheddingTest {
         Field internalMapField = ReflectionUtils.findField(DispatcherImpl.class, "stagesMap");
         Assert.assertNotNull(internalMapField);
         internalMapField.setAccessible(true);
-        Map<String, StageContext> stagesMap = (Map<String, StageContext>) ReflectionUtils.getField(internalMapField,
+        Map<String, RuntimeStage> stagesMap = (Map<String, RuntimeStage>) ReflectionUtils.getField(internalMapField,
             this.dispatcher);
         Assert.assertNotNull(stagesMap);
 
-        StageContext stageContext = stagesMap.get("OVERLOAD");
-        Assert.assertNotNull(stageContext);
+        RuntimeStage runtimeStage = stagesMap.get("OVERLOAD");
+        Assert.assertNotNull(runtimeStage);
 
-        Assert.assertEquals(2, stageContext.getStageStats().getDiscardedExecutions());
+        Assert.assertEquals(2, runtimeStage.getStageStats().getDiscardedExecutions());
 
         this.deterministicLatch.countDown();
     }
@@ -84,7 +84,7 @@ public class LoadSheddingTest {
         stage.setMaxQueueSize(2);
         stage.setCoreThreads(2);
         stage.setMaxThreads(2);
-        stage.setEvent(new AbstractGenericEvent<Data>() {
+        stage.setEventHandler(new AbstractGenericEvent<Data>() {
             @Override
             protected RoutingOutcome exec(Data data) {
                 try {
