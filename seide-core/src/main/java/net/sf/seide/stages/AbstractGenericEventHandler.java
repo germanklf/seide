@@ -8,7 +8,7 @@ package net.sf.seide.stages;
  * 
  * @param <T> concrete {@link Data} type.
  */
-public abstract class AbstractGenericEvent<T extends Data>
+public abstract class AbstractGenericEventHandler<T extends Data>
     implements EventHandler {
 
     /**

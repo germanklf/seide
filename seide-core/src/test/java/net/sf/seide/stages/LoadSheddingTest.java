@@ -84,7 +84,7 @@ public class LoadSheddingTest {
         stage.setMaxQueueSize(2);
         stage.setCoreThreads(2);
         stage.setMaxThreads(2);
-        stage.setEventHandler(new AbstractGenericEvent<Data>() {
+        stage.setEventHandler(new AbstractGenericEventHandler<Data>() {
             @Override
             protected RoutingOutcome exec(Data data) {
                 try {
