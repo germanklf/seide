@@ -34,6 +34,14 @@
 			<distribution>repo</distribution>
 		</license>
 	</licenses>
+	
+	<developers>
+		<developer>
+			<id>german.kondolf</id>
+			<name>Germán Kondolf</name>
+			<email>german.kondolf@gmail.com</email>
+		</developer>
+	</developers>
 
 	<dependencyManagement>
 		<dependencies>
@@ -546,10 +554,12 @@ sp_cleanup.use_this_for_non_static_method_access_only_if_necessary=false
 			<id>internal</id>
 			<url>http://tilcara:8080/nexus/content/repositories/releases</url>
 		</repository>
+		<!-- 
 		<snapshotRepository>
 			<id>snapshots</id>
 			<url>http://tilcara:8080/nexus/content/repositories/snapshots</url>
 		</snapshotRepository>
+		 -->
 	</distributionManagement>
 
 </project>
