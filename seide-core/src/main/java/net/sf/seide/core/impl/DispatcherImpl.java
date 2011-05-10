@@ -6,13 +6,13 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
-import java.util.concurrent.Executor;
-import java.util.concurrent.ThreadPoolExecutor;
+import java.util.concurrent.ExecutorService;
 import java.util.concurrent.atomic.AtomicLong;
 
 import javax.management.MBeanServer;
 import javax.management.ObjectName;
 
+import net.sf.seide.controller.StageController;
 import net.sf.seide.core.ConfigurationException;
 import net.sf.seide.core.Dispatcher;
 import net.sf.seide.core.DispatcherAware;
@@ -21,13 +21,10 @@ import net.sf.seide.core.RuntimeStage;
 import net.sf.seide.event.Event;
 import net.sf.seide.stages.Data;
 import net.sf.seide.stages.EventHandler;
-import net.sf.seide.stages.RunnableEventHandlerWrapper;
 import net.sf.seide.stages.Stage;
 import net.sf.seide.stages.StageAware;
-import net.sf.seide.thread.DefaultThreadPoolExecutorFactory;
 import net.sf.seide.thread.JMXConfigurableThreadPoolExecutor;
 import net.sf.seide.thread.JMXEnabledThreadPoolExecutor;
-import net.sf.seide.thread.ThreadPoolExecutorFactory;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -42,19 +39,21 @@ public class DispatcherImpl
 
     private static final String DISPATCHER_MXBEAN_PREFIX = "net.sf.seide.core.impl:type=DispatcherImpl,name=dispatcher-";
     private static final String STAGE_MXBEAN_PREFIX = "net.sf.seide.stage:type=Stage,name=stage-";
-    private static final String THREAD_POOL_EXECUTOR_MXBEAN_PREFIX = "net.sf.seide.thread:type=ThreadPoolExecutor,name=tpe-";
+    // private static final String THREAD_POOL_EXECUTOR_MXBEAN_PREFIX =
+    // "net.sf.seide.thread:type=ThreadPoolExecutor,name=tpe-";
 
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
     // stages map
     private Map<String, RuntimeStage> stagesMap;
-    // use the default TPE factory
-    private ThreadPoolExecutorFactory executorFactory = new DefaultThreadPoolExecutorFactory();
+    // // use the default TPE factory
+    // private ThreadPoolExecutorFactory executorFactory = new DefaultThreadPoolExecutorFactory();
 
     private String context;
     private List<Stage> stages;
 
     // control variables
+    private volatile boolean started = false;
     private volatile boolean shutdownRequired = false;
 
     // statistics
@@ -78,10 +77,8 @@ public class DispatcherImpl
             throw new RuntimeException("Stage [" + stage + "] is undefined.");
         }
 
-        RunnableEventHandlerWrapper runnableEventHandlerWrapper = new RunnableEventHandlerWrapper(this, runtimeStage, data);
-
-        Executor executor = runtimeStage.getExecutor();
-        executor.execute(runnableEventHandlerWrapper);
+        // delegate the execution to the underlying stage-controller
+        runtimeStage.getController().execute(data);
 
         // track!
         this.eventExecutionCount.incrementAndGet();
@@ -96,13 +93,6 @@ public class DispatcherImpl
         for (Stage stage : this.stages) {
             final String stageId = stage.getId();
             final RuntimeStage runtimeStage = new RuntimeStage(stage);
-
-            final ThreadPoolExecutor executor = this.executorFactory.create(this, runtimeStage);
-            // register the JMX if applies
-            if (this.isThreadPoolExecutorJMXEnabled(executor)) {
-                this.registerMXBean(executor, THREAD_POOL_EXECUTOR_MXBEAN_PREFIX + this.context + "-" + stageId);
-            }
-            runtimeStage.setExecutor(executor);
 
             // JMX, everybody loves JMX!
             this.registerMXBean(runtimeStage.getStageStats(), STAGE_MXBEAN_PREFIX + this.context + "-" + stageId);
@@ -124,11 +114,19 @@ public class DispatcherImpl
                 ((DispatcherAware) eventHandler).setDispatcher(this);
             }
 
+            // start the stage-controller
+            StageController stageController = runtimeStage.getController();
+            stageController.setDispatcher(this);
+            stageController.setRuntimeStage(runtimeStage);
+            stageController.start();
+
             this.stagesMap.put(stageId, runtimeStage);
         }
+
+        this.started = true;
     }
 
-    private boolean isThreadPoolExecutorJMXEnabled(ThreadPoolExecutor executor) {
+    private boolean isThreadPoolExecutorJMXEnabled(ExecutorService executor) {
         return executor instanceof JMXEnabledThreadPoolExecutor || executor instanceof JMXConfigurableThreadPoolExecutor;
     }
 
@@ -152,11 +150,6 @@ public class DispatcherImpl
         }
     }
 
-    @Override
-    public void setExecutorFactory(ThreadPoolExecutorFactory executorFactory) {
-        this.executorFactory = executorFactory;
-    }
-
     public String getContext() {
         return this.context;
     }
@@ -169,17 +162,17 @@ public class DispatcherImpl
         this.stages = stages;
     }
 
-    public void shutdown() {
+    public void stop() {
         this.shutdownRequired = true;
 
         // shutdown the threadpools...
         for (Entry<String, RuntimeStage> entry : this.stagesMap.entrySet()) {
             String stage = entry.getKey();
-            ThreadPoolExecutor tpe = entry.getValue().getExecutor();
-            List<Runnable> remaining = tpe.shutdownNow();
-            int remainingCount = remaining != null ? remaining.size() : 0;
+            RuntimeStage runtimeStage = entry.getValue();
 
-            this.logger.info("Shutdown processed for [" + stage + "], remaining runnables: " + remainingCount);
+            runtimeStage.getController().stop();
+
+            this.logger.info("Stopping stage-controller for [" + stage + "]");
         }
 
         // clean up
@@ -187,14 +180,16 @@ public class DispatcherImpl
             String stageId = entry.getKey();
             this.unregisterMXBean(STAGE_MXBEAN_PREFIX + this.context + "-" + stageId);
             this.unregisterMXBean(STAGE_MXBEAN_PREFIX + this.context + "-routing-" + stageId);
-
-            // unregister TPE if applies
-            ThreadPoolExecutor executor = entry.getValue().getExecutor();
-            if (this.isThreadPoolExecutorJMXEnabled(executor)) {
-                this.unregisterMXBean(THREAD_POOL_EXECUTOR_MXBEAN_PREFIX + this.context + "-" + stageId);
-            }
         }
         this.unregisterMXBean(DISPATCHER_MXBEAN_PREFIX + this.context);
+
+        this.started = false;
+        this.shutdownRequired = false;
+    }
+
+    @Override
+    public boolean isRunning() {
+        return this.started && !this.shutdownRequired;
     }
 
     @Override

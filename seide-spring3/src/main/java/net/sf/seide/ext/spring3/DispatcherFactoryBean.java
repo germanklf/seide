@@ -5,7 +5,6 @@ import java.util.Map;
 
 import net.sf.seide.core.Dispatcher;
 import net.sf.seide.stages.Stage;
-import net.sf.seide.thread.DefaultThreadPoolExecutorFactory;
 import net.sf.seide.thread.ThreadPoolExecutorFactory;
 
 import org.springframework.beans.BeansException;
@@ -33,8 +32,6 @@ public class DispatcherFactoryBean
 
     private DispatcherFactory dispatcherFactory = DefaultDispatcherFactory.createDefault();
 
-    private ThreadPoolExecutorFactory executorFactory = new DefaultThreadPoolExecutorFactory();
-
     @Override
     public Dispatcher getObject() throws Exception {
         if (this.dispatcher != null) {
@@ -52,7 +49,6 @@ public class DispatcherFactoryBean
         Dispatcher newDispatcher = this.dispatcherFactory.create();
         newDispatcher.setStages(stages);
         newDispatcher.setContext(this.context);
-        newDispatcher.setExecutorFactory(this.executorFactory);
         newDispatcher.start();
 
         this.dispatcher = newDispatcher;
@@ -79,10 +75,6 @@ public class DispatcherFactoryBean
         this.context = context;
     }
 
-    public void setExecutorFactory(ThreadPoolExecutorFactory executorFactory) {
-        this.executorFactory = executorFactory;
-    }
-
     @Override
     public void setApplicationContext(ApplicationContext applicationContext) throws BeansException {
         this.applicationContext = applicationContext;
@@ -90,7 +82,7 @@ public class DispatcherFactoryBean
 
     @Override
     public void destroy() throws Exception {
-        this.dispatcher.shutdown();
+        this.dispatcher.stop();
     }
 
 }

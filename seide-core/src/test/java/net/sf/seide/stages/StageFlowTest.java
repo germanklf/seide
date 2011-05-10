@@ -74,7 +74,7 @@ public class StageFlowTest {
 
     @After
     public void after() throws Exception {
-        this.dispatcher.shutdown();
+        this.dispatcher.stop();
     }
 
     private Stage createFirstStepCommand() {

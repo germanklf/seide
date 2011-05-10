@@ -1,13 +1,11 @@
 package net.sf.seide.core;
 
 import java.util.List;
-import java.util.concurrent.ThreadPoolExecutor;
 
 import net.sf.seide.event.Event;
 import net.sf.seide.stages.Data;
 import net.sf.seide.stages.EventHandler;
 import net.sf.seide.stages.Stage;
-import net.sf.seide.thread.ThreadPoolExecutorFactory;
 
 /**
  * {@link Dispatcher} is the basic interface for the entry point to route messages throught the {@link Stage}s.
@@ -17,12 +15,8 @@ import net.sf.seide.thread.ThreadPoolExecutorFactory;
  * @see {@link EventHandler}
  * @see {@link Data}
  */
-public interface Dispatcher {
-
-    /**
-     * Starts & configures the {@link Dispatcher} instance.
-     */
-    void start();
+public interface Dispatcher
+    extends Lifecycle {
 
     /**
      * Routes the {@link Data} to the specified {@link Stage} executing the associated {@link EventHandler}.
@@ -39,12 +33,6 @@ public interface Dispatcher {
      * @param data payload.
      */
     void execute(Event event);
-
-    /**
-     * Shutdown & clean up method. The invocation dries out the instance, it's not supposed to be re-starteable by
-     * {@link Dispatcher#start()}
-     */
-    void shutdown();
 
     /**
      * {@link Stage} list of supported flow {@link EventHandler}.
@@ -65,12 +53,5 @@ public interface Dispatcher {
      * @param context
      */
     void setContext(String context);
-
-    /**
-     * Configures the executor factory that will create a {@link ThreadPoolExecutor} for every stage.
-     * 
-     * @param executorFactory
-     */
-    void setExecutorFactory(ThreadPoolExecutorFactory executorFactory);
 
 }

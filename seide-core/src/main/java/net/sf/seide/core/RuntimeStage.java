@@ -2,6 +2,7 @@ package net.sf.seide.core;
 
 import java.util.concurrent.ThreadPoolExecutor;
 
+import net.sf.seide.controller.StageController;
 import net.sf.seide.core.impl.DispatcherImpl;
 import net.sf.seide.stages.EventHandler;
 import net.sf.seide.stages.Stage;
@@ -26,7 +27,9 @@ public class RuntimeStage {
     private final EventHandler eventHandler;
     private final StageStatistics stageStats;
     private final StageStatistics routingStageStats;
-    private ThreadPoolExecutor executor;
+    // private ExecutorService executor;
+
+    private final StageController controller;
 
     public RuntimeStage(Stage stage) {
         this.stage = stage;
@@ -35,6 +38,7 @@ public class RuntimeStage {
         this.eventHandler = stage.getEventHandler();
         this.stageStats = new StageStatisticsImpl(this.context, this.id);
         this.routingStageStats = new StageStatisticsImpl(this.context, this.id);
+        this.controller = stage.getController();
     }
 
     public Stage getStage() {
@@ -61,12 +65,16 @@ public class RuntimeStage {
         return this.routingStageStats;
     }
 
-    public void setExecutor(ThreadPoolExecutor executor) {
-        this.executor = executor;
-    }
+    // public void setExecutor(ThreadPoolExecutor executor) {
+    // this.executor = executor;
+    // }
+    //
+    // public ExecutorService getExecutor() {
+    // return this.executor;
+    // }
 
-    public ThreadPoolExecutor getExecutor() {
-        return this.executor;
+    public StageController getController() {
+        return this.controller;
     }
 
 }

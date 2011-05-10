@@ -1,5 +1,8 @@
 package net.sf.seide.stages;
 
+import net.sf.seide.controller.StageController;
+import net.sf.seide.controller.impl.DirectThreadPoolStageController;
+
 
 public class Stage {
 
@@ -12,6 +15,7 @@ public class Stage {
     private int maxQueueSize = 0;
 
     private EventHandler eventHandler;
+    private StageController controller = new DirectThreadPoolStageController();
 
     public String getContext() {
         return this.context;
@@ -75,6 +79,14 @@ public class Stage {
 
     public void setMaxQueueSize(int maxQueueSize) {
         this.maxQueueSize = maxQueueSize;
+    }
+
+    public StageController getController() {
+        return this.controller;
+    }
+
+    public void setController(StageController controller) {
+        this.controller = controller;
     }
 
 }

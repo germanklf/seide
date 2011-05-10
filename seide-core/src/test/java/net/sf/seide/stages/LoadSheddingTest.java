@@ -74,7 +74,7 @@ public class LoadSheddingTest {
 
     @After
     public void after() {
-        this.dispatcher.shutdown();
+        this.dispatcher.stop();
     }
 
     private Stage createStageEvent() {
