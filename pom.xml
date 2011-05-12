@@ -549,21 +549,27 @@ sp_cleanup.use_this_for_non_static_method_access_only_if_necessary=false
 		</plugins>
 	</build>
 
-	<repositories></repositories>
-	<pluginRepositories></pluginRepositories>
-
-	<distributionManagement>
-		<repository>
-			<id>internal</id>
-			<url>http://tilcara:8080/nexus/content/repositories/releases</url>
-		</repository>
-		<snapshotRepository>
-			<id>snapshots</id>
-			<url>http://tilcara:8080/nexus/content/repositories/snapshots</url>
-		</snapshotRepository>
-	</distributionManagement>
-
 	<profiles>
+		<profile>
+			<activation>
+				<property>
+					<name>internalBuild</name>
+					<value>true</value>
+				</property>
+			</activation>
+			<repositories>
+			</repositories>
+			<distributionManagement>
+				<repository>
+					<id>internal</id>
+					<url>http://tilcara:8080/nexus/content/repositories/releases</url>
+				</repository>
+				<snapshotRepository>
+					<id>snapshots</id>
+					<url>http://tilcara:8080/nexus/content/repositories/snapshots</url>
+				</snapshotRepository>
+			</distributionManagement>
+		</profile>
 		<profile>
 			<id>release-sign-artifacts</id>
 			<activation>
