@@ -13,8 +13,8 @@ import net.sf.seide.stages.Stage;
  */
 public class Event {
 
-    private final String stage;
-    private final Message message;
+    protected final String stage;
+    protected final Message message;
 
     public Event(String stage, Message message) {
         this.stage = stage;

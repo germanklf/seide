@@ -1,8 +1,8 @@
 package net.sf.seide.stages;
 
+import java.util.Collection;
 import java.util.Collections;
 import java.util.LinkedList;
-import java.util.List;
 
 import net.sf.seide.core.Dispatcher;
 import net.sf.seide.event.Event;
@@ -17,7 +17,9 @@ import net.sf.seide.message.Message;
  */
 public class RoutingOutcome {
 
-    private final List<Event> events;
+    private final Collection<Event> events;
+    private Event joinEvent = null;
+    private Message returnMessage = null;
 
     public RoutingOutcome() {
         // linked list to use the same order that the user specified in the adding process.
@@ -42,6 +44,13 @@ public class RoutingOutcome {
         return routingOutcome;
     }
 
+    public static RoutingOutcome createAndReturnMessage(Message returnMessage) {
+        RoutingOutcome routingOutcome = create();
+        routingOutcome.returnMessage(returnMessage);
+
+        return routingOutcome;
+    }
+
     public RoutingOutcome add(String stage, Message message) {
         return this.add(new Event(stage, message));
     }
@@ -51,8 +60,32 @@ public class RoutingOutcome {
         return this;
     }
 
-    public List<Event> getEvents() {
-        return Collections.unmodifiableList(this.events);
+    public RoutingOutcome configureJoinEvent(Event event) {
+        assert !this.hasJoinEvent() : "join event already set";
+        this.joinEvent = event;
+
+        return this;
+    }
+
+    public RoutingOutcome returnMessage(Message returnMessage) {
+        this.returnMessage = returnMessage;
+        return this;
+    }
+
+    public Message getReturnMessage() {
+        return this.returnMessage;
+    }
+
+    public Collection<Event> getEvents() {
+        return Collections.unmodifiableCollection(this.events);
+    }
+
+    public boolean hasJoinEvent() {
+        return this.joinEvent != null;
+    }
+
+    public Event getJoinEvent() {
+        return this.joinEvent;
     }
 
     public boolean isEmpty() {

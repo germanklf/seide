@@ -11,6 +11,7 @@ import net.sf.seide.core.Dispatcher;
 import net.sf.seide.core.JMXHelper;
 import net.sf.seide.core.RuntimeStage;
 import net.sf.seide.core.TimeoutEnabled;
+import net.sf.seide.event.Event;
 import net.sf.seide.event.RunnableEventHandlerWrapper;
 import net.sf.seide.message.Message;
 import net.sf.seide.thread.DefaultThreadPoolExecutorFactory;
@@ -45,8 +46,9 @@ public class DirectThreadPoolStageController
     private volatile boolean stopRequired = false;
 
     @Override
-    public void execute(Message message) {
-        RunnableEventHandlerWrapper runnable = new RunnableEventHandlerWrapper(this.dispatcher, this.runtimeStage, message);
+    public void execute(Event event) {
+        Message message = event.getMessage();
+        RunnableEventHandlerWrapper runnable = new RunnableEventHandlerWrapper(this.dispatcher, this.runtimeStage, event);
         Future<?> future = this.executor.submit(runnable);
 
         this.handleTimeoutControl(message, future);
@@ -113,6 +115,14 @@ public class DirectThreadPoolStageController
         int remainingCount = remaining != null ? remaining.size() : 0;
 
         LOGGER.info("Shutdown processed for [" + this.runtimeStage.getId() + "], remaining runnables: " + remainingCount);
+
+        if (this.timeoutMonitorExecutor != null) {
+            List<Runnable> monitorRemaining = this.timeoutMonitorExecutor.shutdownNow();
+            int monitorRemainingCount = monitorRemaining != null ? monitorRemaining.size() : 0;
+
+            LOGGER.info("Shutdown processed for timeoutMonitorExecutor [" + this.runtimeStage.getId()
+                + "], remaining runnables: " + monitorRemainingCount);
+        }
 
         // unregister TPE if applies
         if (JMXHelper.isThreadPoolExecutorJMXEnabled(this.executor)) {

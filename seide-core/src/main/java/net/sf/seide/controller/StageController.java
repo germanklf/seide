@@ -19,9 +19,9 @@ public interface StageController
     /**
      * Execution handler for the given stage.
      * 
-     * @param message
+     * @param event
      */
-    void execute(Message message);
+    void execute(Event event);
 
     /**
      * Runtime configuration of the running {@link Stage} ({@link RuntimeStage}).

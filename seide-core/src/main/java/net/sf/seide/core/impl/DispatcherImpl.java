@@ -34,7 +34,7 @@ public class DispatcherImpl
     private static final String DISPATCHER_MXBEAN_PREFIX = "net.sf.seide.core.impl:type=DispatcherImpl,name=dispatcher-";
     private static final String STAGE_MXBEAN_PREFIX = "net.sf.seide.stage:type=Stage,name=stage-";
 
-    private final Logger logger = LoggerFactory.getLogger(this.getClass());
+    private static final Logger LOGGER = LoggerFactory.getLogger(DispatcherImpl.class);
 
     // stages map
     private Map<String, RuntimeStage> stagesMap;
@@ -55,10 +55,9 @@ public class DispatcherImpl
 
     public void execute(Event event) {
         final String stage = event.getStage();
-        final Message data = event.getMessage();
 
         if (this.shutdownRequired) {
-            this.logger.info("Stage execution rejected for stage [" + stage + "], shutdown required!");
+            this.LOGGER.info("Stage execution rejected for stage [" + stage + "], shutdown required!");
             return;
         }
 
@@ -68,7 +67,7 @@ public class DispatcherImpl
         }
 
         // delegate the execution to the underlying stage-controller
-        runtimeStage.getController().execute(data);
+        runtimeStage.getController().execute(event);
 
         // track!
         this.eventExecutionCount.incrementAndGet();
@@ -138,7 +137,7 @@ public class DispatcherImpl
 
             runtimeStage.getController().stop();
 
-            this.logger.info("Stopping stage-controller for [" + stage + "]");
+            this.LOGGER.info("Stopping stage-controller for [" + stage + "]");
         }
 
         // clean up
