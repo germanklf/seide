@@ -14,6 +14,8 @@ public class RunnableEventHandlerWrapper
     private final Message message;
     private final StageStatistics stageStats;
     private final StageStatistics routingStageStats;
+    @SuppressWarnings("rawtypes")
+    private final EventHandler eventHandler;
 
     public RunnableEventHandlerWrapper(Dispatcher dispatcher, RuntimeStage runtimeStage, Message message) {
         this.dispatcher = dispatcher;
@@ -21,6 +23,7 @@ public class RunnableEventHandlerWrapper
         this.message = message;
         this.stageStats = runtimeStage.getStageStats();
         this.routingStageStats = runtimeStage.getRoutingStageStats();
+        this.eventHandler = runtimeStage.getEventHandler();
 
         // asume that a creating means a pending...
         this.stageStats.addPending();
@@ -38,7 +41,7 @@ public class RunnableEventHandlerWrapper
         time = System.nanoTime();
 
         // execution
-        RoutingOutcome routingOutcome = this.runtimeStage.getEventHandler().execute(this.message);
+        RoutingOutcome routingOutcome = this.eventHandler.execute(this.message);
 
         // tracking & remove running...
         this.stageStats.trackTimeAndExecution(System.nanoTime() - time);
@@ -54,6 +57,10 @@ public class RunnableEventHandlerWrapper
         }
         this.routingStageStats.trackTimeAndExecution(System.nanoTime() - time);
         this.routingStageStats.removeRunning();
+    }
+
+    public RuntimeStage getRuntimeStage() {
+        return this.runtimeStage;
     }
 
 }
