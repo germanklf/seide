@@ -1,30 +1,24 @@
 package net.sf.seide.core.impl;
 
-import java.lang.management.ManagementFactory;
 import java.text.MessageFormat;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
-import java.util.concurrent.ExecutorService;
 import java.util.concurrent.atomic.AtomicLong;
-
-import javax.management.MBeanServer;
-import javax.management.ObjectName;
 
 import net.sf.seide.controller.StageController;
 import net.sf.seide.core.ConfigurationException;
 import net.sf.seide.core.Dispatcher;
 import net.sf.seide.core.DispatcherAware;
 import net.sf.seide.core.DispatcherStatistics;
+import net.sf.seide.core.JMXHelper;
 import net.sf.seide.core.RuntimeStage;
 import net.sf.seide.event.Event;
 import net.sf.seide.event.EventHandler;
 import net.sf.seide.message.Message;
 import net.sf.seide.stages.Stage;
 import net.sf.seide.stages.StageAware;
-import net.sf.seide.thread.JMXConfigurableThreadPoolExecutor;
-import net.sf.seide.thread.JMXEnabledThreadPoolExecutor;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -39,15 +33,11 @@ public class DispatcherImpl
 
     private static final String DISPATCHER_MXBEAN_PREFIX = "net.sf.seide.core.impl:type=DispatcherImpl,name=dispatcher-";
     private static final String STAGE_MXBEAN_PREFIX = "net.sf.seide.stage:type=Stage,name=stage-";
-    // private static final String THREAD_POOL_EXECUTOR_MXBEAN_PREFIX =
-    // "net.sf.seide.thread:type=ThreadPoolExecutor,name=tpe-";
 
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
     // stages map
     private Map<String, RuntimeStage> stagesMap;
-    // // use the default TPE factory
-    // private ThreadPoolExecutorFactory executorFactory = new DefaultThreadPoolExecutorFactory();
 
     private String context;
     private List<Stage> stages;
@@ -86,7 +76,7 @@ public class DispatcherImpl
 
     public void start() {
         // register jmx server
-        this.registerMXBean(this, DISPATCHER_MXBEAN_PREFIX + this.context);
+        JMXHelper.registerMXBean(this, DISPATCHER_MXBEAN_PREFIX + this.context);
 
         this.stagesMap = new LinkedHashMap<String, RuntimeStage>(this.stages.size());
 
@@ -95,8 +85,8 @@ public class DispatcherImpl
             final RuntimeStage runtimeStage = new RuntimeStage(stage);
 
             // JMX, everybody loves JMX!
-            this.registerMXBean(runtimeStage.getStageStats(), STAGE_MXBEAN_PREFIX + this.context + "-" + stageId);
-            this.registerMXBean(runtimeStage.getRoutingStageStats(), STAGE_MXBEAN_PREFIX + this.context + "-routing-"
+            JMXHelper.registerMXBean(runtimeStage.getStageStats(), STAGE_MXBEAN_PREFIX + this.context + "-" + stageId);
+            JMXHelper.registerMXBean(runtimeStage.getRoutingStageStats(), STAGE_MXBEAN_PREFIX + this.context + "-routing-"
                 + stageId);
 
             // minimal validation
@@ -124,30 +114,6 @@ public class DispatcherImpl
         }
 
         this.started = true;
-    }
-
-    private boolean isThreadPoolExecutorJMXEnabled(ExecutorService executor) {
-        return executor instanceof JMXEnabledThreadPoolExecutor || executor instanceof JMXConfigurableThreadPoolExecutor;
-    }
-
-    private void registerMXBean(Object object, String name) {
-        this.logger.info("Registering MBean [" + name + "]...");
-        MBeanServer mbs = ManagementFactory.getPlatformMBeanServer();
-        try {
-            mbs.registerMBean(object, new ObjectName(name));
-        } catch (Exception e) {
-            this.logger.error("Error registering MBean: [" + name + "]", e);
-        }
-    }
-
-    private void unregisterMXBean(String name) {
-        this.logger.info("Unregistering MBean [" + name + "]...");
-        MBeanServer mbs = ManagementFactory.getPlatformMBeanServer();
-        try {
-            mbs.unregisterMBean(new ObjectName(name));
-        } catch (Exception e) {
-            this.logger.error("Error unregistering MBean: [" + name + "]", e);
-        }
     }
 
     public String getContext() {
@@ -178,10 +144,10 @@ public class DispatcherImpl
         // clean up
         for (Entry<String, RuntimeStage> entry : this.stagesMap.entrySet()) {
             String stageId = entry.getKey();
-            this.unregisterMXBean(STAGE_MXBEAN_PREFIX + this.context + "-" + stageId);
-            this.unregisterMXBean(STAGE_MXBEAN_PREFIX + this.context + "-routing-" + stageId);
+            JMXHelper.unregisterMXBean(STAGE_MXBEAN_PREFIX + this.context + "-" + stageId);
+            JMXHelper.unregisterMXBean(STAGE_MXBEAN_PREFIX + this.context + "-routing-" + stageId);
         }
-        this.unregisterMXBean(DISPATCHER_MXBEAN_PREFIX + this.context);
+        JMXHelper.unregisterMXBean(DISPATCHER_MXBEAN_PREFIX + this.context);
 
         this.started = false;
         this.shutdownRequired = false;
