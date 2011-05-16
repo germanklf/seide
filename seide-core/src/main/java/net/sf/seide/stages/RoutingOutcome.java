@@ -1,10 +1,13 @@
 package net.sf.seide.stages;
 
+import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
 
 import net.sf.seide.core.Dispatcher;
 import net.sf.seide.event.Event;
+import net.sf.seide.event.EventHandler;
+import net.sf.seide.message.Message;
 
 /**
  * {@link RoutingOutcome} represents the output of an {@link EventHandler}, and instructs the {@link Dispatcher} the
@@ -32,15 +35,15 @@ public class RoutingOutcome {
         return routingOutcome;
     }
 
-    public static RoutingOutcome create(String stage, Data data) {
+    public static RoutingOutcome create(String stage, Message message) {
         RoutingOutcome routingOutcome = create();
-        routingOutcome.add(stage, data);
+        routingOutcome.add(stage, message);
 
         return routingOutcome;
     }
 
-    public RoutingOutcome add(String stage, Data data) {
-        return this.add(new Event(stage, data));
+    public RoutingOutcome add(String stage, Message message) {
+        return this.add(new Event(stage, message));
     }
 
     public RoutingOutcome add(Event event) {
@@ -49,7 +52,7 @@ public class RoutingOutcome {
     }
 
     public List<Event> getEvents() {
-        return this.events;
+        return Collections.unmodifiableList(this.events);
     }
 
     public boolean isEmpty() {

@@ -11,8 +11,8 @@ import net.sf.seide.core.Dispatcher;
 import net.sf.seide.core.JMXHelper;
 import net.sf.seide.core.RuntimeStage;
 import net.sf.seide.core.TimeoutEnabled;
-import net.sf.seide.stages.Data;
-import net.sf.seide.stages.RunnableEventHandlerWrapper;
+import net.sf.seide.event.RunnableEventHandlerWrapper;
+import net.sf.seide.message.Message;
 import net.sf.seide.thread.DefaultThreadPoolExecutorFactory;
 import net.sf.seide.thread.ThreadPoolExecutorFactory;
 
@@ -45,23 +45,23 @@ public class DirectThreadPoolStageController
     private volatile boolean stopRequired = false;
 
     @Override
-    public void execute(Data data) {
-        RunnableEventHandlerWrapper runnable = new RunnableEventHandlerWrapper(this.dispatcher, this.runtimeStage, data);
+    public void execute(Message message) {
+        RunnableEventHandlerWrapper runnable = new RunnableEventHandlerWrapper(this.dispatcher, this.runtimeStage, message);
         Future<?> future = this.executor.submit(runnable);
 
-        this.handleTimeoutControl(data, future);
+        this.handleTimeoutControl(message, future);
     }
 
-    private void handleTimeoutControl(final Data data, final Future<?> future) {
+    private void handleTimeoutControl(final Message message, final Future<?> future) {
         if (this.timeoutMonitorExecutor == null) {
             return;
         }
 
-        int runningTimeout = this.evaluateTimeout(data);
+        int runningTimeout = this.evaluateTimeout(message);
         if (runningTimeout > 0 && !future.isDone() && !future.isCancelled()) {
             this.timeoutMonitorExecutor.schedule(new Runnable() {
                 private final Future<?> internalFuture = future;
-                private final Data internalData = data;
+                private final Message internalData = message;
 
                 public void run() {
                     if (!this.internalFuture.isDone() && !this.internalFuture.isCancelled()) {
@@ -75,8 +75,9 @@ public class DirectThreadPoolStageController
         }
     }
 
-    private int evaluateTimeout(Data data) {
-        return (data instanceof TimeoutEnabled) ? ((TimeoutEnabled) data).getTimeoutInMillis() : this.configuredTimeout;
+    private int evaluateTimeout(Message message) {
+        return (message instanceof TimeoutEnabled) ? ((TimeoutEnabled) message).getTimeoutInMillis()
+            : this.configuredTimeout;
     }
 
     @Override

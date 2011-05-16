@@ -3,28 +3,28 @@ package net.sf.seide.core;
 import java.util.List;
 
 import net.sf.seide.event.Event;
-import net.sf.seide.stages.Data;
-import net.sf.seide.stages.EventHandler;
+import net.sf.seide.event.EventHandler;
+import net.sf.seide.message.Message;
 import net.sf.seide.stages.Stage;
 
 /**
- * {@link Dispatcher} is the basic interface for the entry point to route messages throught the {@link Stage}s.
+ * {@link Dispatcher} is the basic interface for the entry point to route messages through the {@link Stage}s.
  * 
  * @author german.kondolf
  * @see {@link Stage}
  * @see {@link EventHandler}
- * @see {@link Data}
+ * @see {@link Message}
  */
 public interface Dispatcher
     extends Lifecycle {
 
     /**
-     * Routes the {@link Data} to the specified {@link Stage} executing the associated {@link EventHandler}.
+     * Routes the {@link Message} to the specified {@link Stage} executing the associated {@link EventHandler}.
      * 
      * @param stage {@link Stage#id}
-     * @param data payload.
+     * @param message payload.
      */
-    void execute(String stage, Data data);
+    void execute(String stage, Message message);
 
     /**
      * Routes the {@link Event} to the specified {@link Stage} executing the associated {@link EventHandler}.

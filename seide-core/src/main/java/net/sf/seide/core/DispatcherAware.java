@@ -1,6 +1,6 @@
 package net.sf.seide.core;
 
-import net.sf.seide.stages.EventHandler;
+import net.sf.seide.event.EventHandler;
 
 /**
  * Declares {@link Dispatcher} awareness for an {@link EventHandler} mainly.

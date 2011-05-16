@@ -8,6 +8,8 @@ import java.util.concurrent.atomic.AtomicBoolean;
 import net.sf.seide.controller.impl.DirectThreadPoolStageController;
 import net.sf.seide.core.Dispatcher;
 import net.sf.seide.core.impl.DispatcherImpl;
+import net.sf.seide.event.EventHandler;
+import net.sf.seide.message.Message;
 
 import org.junit.Assert;
 import org.junit.Test;
@@ -71,7 +73,7 @@ public class TimeoutHandlingTest {
         controller.setTimeout(200);
         stage.setController(controller);
         stage.setEventHandler(new EventHandler() {
-            public RoutingOutcome execute(Data data) {
+            public RoutingOutcome execute(Message data) {
                 TimeoutHandlingTest.this.logger.info("Waiting...");
                 try {
                     Thread.sleep(waitTime);

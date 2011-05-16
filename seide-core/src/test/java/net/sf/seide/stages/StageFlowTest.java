@@ -5,6 +5,8 @@ import java.util.List;
 import java.util.UUID;
 
 import net.sf.seide.core.impl.DispatcherImpl;
+import net.sf.seide.event.EventHandler;
+import net.sf.seide.message.Message;
 
 import org.junit.After;
 import org.junit.Before;
@@ -26,7 +28,7 @@ public class StageFlowTest {
     @Test
     public void testStraightFlow() {
         this.logger.info("START: testStraightFlow >>>>>>>>>>>>>>>>>>>>>>>");
-        this.dispatcher.execute("FIRST", new StageFirstEvent("FIRST-Value"));
+        this.dispatcher.execute("FIRST", new StageFirstMessage("FIRST-Message"));
     }
 
     /**
@@ -37,7 +39,7 @@ public class StageFlowTest {
     @Test
     public void testStraightMultipleFlow() throws Throwable {
         this.logger.info("START: testStraightMultipleFlow >>>>>>>>>>>>>>>>>>>>>>>");
-        StageFirstEvent data = new StageFirstEvent("MULTI-FIRST-Value");
+        StageFirstMessage data = new StageFirstMessage("MULTI-FIRST-Message");
         data.setCount(10);
         this.dispatcher.execute("FIRST", data);
     }
@@ -53,7 +55,7 @@ public class StageFlowTest {
         int iterations = 200;
         // int iterations = 200000;
         for (int i = 0; i < iterations; i++) {
-            StageFirstEvent data = new StageFirstEvent("MULTI-FIRST-Value");
+            StageFirstMessage data = new StageFirstMessage("MULTI-FIRST-Message");
             data.setCount(10);
             this.dispatcher.execute("FIRST", data);
         }
@@ -65,8 +67,8 @@ public class StageFlowTest {
     public void before() {
         this.dispatcher = new DispatcherImpl();
         List<Stage> stages = new LinkedList<Stage>();
-        stages.add(this.createFirstStepCommand());
-        stages.add(this.createSecondStepCommand());
+        stages.add(this.createFirstStepMessage());
+        stages.add(this.createSecondStepMessage());
         this.dispatcher.setStages(stages);
         this.dispatcher.setContext("Test-" + Long.toHexString(UUID.randomUUID().toString().hashCode()));
         this.dispatcher.start();
@@ -77,17 +79,17 @@ public class StageFlowTest {
         this.dispatcher.stop();
     }
 
-    private Stage createFirstStepCommand() {
+    private Stage createFirstStepMessage() {
         Stage stage = new Stage();
         stage.setContext("TEST");
         stage.setId("FIRST");
-        stage.setEventHandler(new EventHandler() {
-            public RoutingOutcome execute(Data data) {
-                StageFirstEvent sfe = (StageFirstEvent) data;
+        stage.setEventHandler(new EventHandler<StageFirstMessage>() {
+            public RoutingOutcome execute(StageFirstMessage data) {
+                StageFirstMessage sfe = data;
                 StageFlowTest.this.logger.info(">> First Stage Command: " + sfe.getValue());
                 RoutingOutcome output = RoutingOutcome.create();
                 for (int i = 0; i < sfe.getCount(); i++) {
-                    output.add("SECOND", new StageSecondEvent("SECOND-Value:" + i));
+                    output.add("SECOND", new StageSecondMessage("SECOND-Message:" + i));
                 }
                 return output;
             }
@@ -95,27 +97,27 @@ public class StageFlowTest {
         return stage;
     }
 
-    private Stage createSecondStepCommand() {
+    private Stage createSecondStepMessage() {
         Stage stage = new Stage();
         stage.setContext("TEST");
         stage.setId("SECOND");
         stage.setCoreThreads(100);
         stage.setMaxThreads(100);
-        stage.setEventHandler(new EventHandler() {
-            public RoutingOutcome execute(Data data) {
-                StageFlowTest.this.logger.info(">> Second Stage Command: " + ((StageSecondEvent) data).getValue());
+        stage.setEventHandler(new EventHandler<StageSecondMessage>() {
+            public RoutingOutcome execute(StageSecondMessage data) {
+                StageFlowTest.this.logger.info(">> Second Stage Command: " + (data).getValue());
                 return null;
             }
         });
         return stage;
     }
 
-    private static class StageFirstEvent
-        implements Data {
+    private static class StageFirstMessage
+        implements Message {
         private final String value;
         private int count = 1;
 
-        public StageFirstEvent(String value) {
+        public StageFirstMessage(String value) {
             this.value = value;
         }
 
@@ -132,11 +134,11 @@ public class StageFlowTest {
         }
     }
 
-    private static class StageSecondEvent
-        implements Data {
+    private static class StageSecondMessage
+        implements Message {
         private final String value;
 
-        public StageSecondEvent(String value) {
+        public StageSecondMessage(String value) {
             this.value = value;
         }
 

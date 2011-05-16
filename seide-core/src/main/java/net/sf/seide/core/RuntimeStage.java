@@ -4,7 +4,7 @@ import java.util.concurrent.ThreadPoolExecutor;
 
 import net.sf.seide.controller.StageController;
 import net.sf.seide.core.impl.DispatcherImpl;
-import net.sf.seide.stages.EventHandler;
+import net.sf.seide.event.EventHandler;
 import net.sf.seide.stages.Stage;
 import net.sf.seide.stages.StageStatistics;
 import net.sf.seide.stages.impl.StageStatisticsImpl;
@@ -24,6 +24,7 @@ public class RuntimeStage {
     private final Stage stage;
     private final String context;
     private final String id;
+    @SuppressWarnings("rawtypes")
     private final EventHandler eventHandler;
     private final StageStatistics stageStats;
     private final StageStatistics routingStageStats;
@@ -53,6 +54,7 @@ public class RuntimeStage {
         return this.context;
     }
 
+    @SuppressWarnings("rawtypes")
     public EventHandler getEventHandler() {
         return this.eventHandler;
     }

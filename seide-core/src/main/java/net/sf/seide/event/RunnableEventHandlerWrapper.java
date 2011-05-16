@@ -1,22 +1,24 @@
-package net.sf.seide.stages;
+package net.sf.seide.event;
 
 import net.sf.seide.core.Dispatcher;
 import net.sf.seide.core.RuntimeStage;
-import net.sf.seide.event.Event;
+import net.sf.seide.message.Message;
+import net.sf.seide.stages.RoutingOutcome;
+import net.sf.seide.stages.StageStatistics;
 
 public class RunnableEventHandlerWrapper
     implements Runnable {
 
     private final Dispatcher dispatcher;
     private final RuntimeStage runtimeStage;
-    private final Data data;
+    private final Message message;
     private final StageStatistics stageStats;
     private final StageStatistics routingStageStats;
 
-    public RunnableEventHandlerWrapper(Dispatcher dispatcher, RuntimeStage runtimeStage, Data data) {
+    public RunnableEventHandlerWrapper(Dispatcher dispatcher, RuntimeStage runtimeStage, Message message) {
         this.dispatcher = dispatcher;
         this.runtimeStage = runtimeStage;
-        this.data = data;
+        this.message = message;
         this.stageStats = runtimeStage.getStageStats();
         this.routingStageStats = runtimeStage.getRoutingStageStats();
 
@@ -24,6 +26,7 @@ public class RunnableEventHandlerWrapper
         this.stageStats.addPending();
     }
 
+    @SuppressWarnings("unchecked")
     @Override
     public void run() {
         // no longer pending...
@@ -35,7 +38,7 @@ public class RunnableEventHandlerWrapper
         time = System.nanoTime();
 
         // execution
-        RoutingOutcome routingOutcome = this.runtimeStage.getEventHandler().execute(this.data);
+        RoutingOutcome routingOutcome = this.runtimeStage.getEventHandler().execute(this.message);
 
         // tracking & remove running...
         this.stageStats.trackTimeAndExecution(System.nanoTime() - time);

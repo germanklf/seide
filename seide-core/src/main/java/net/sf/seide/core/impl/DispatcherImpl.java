@@ -19,8 +19,8 @@ import net.sf.seide.core.DispatcherAware;
 import net.sf.seide.core.DispatcherStatistics;
 import net.sf.seide.core.RuntimeStage;
 import net.sf.seide.event.Event;
-import net.sf.seide.stages.Data;
-import net.sf.seide.stages.EventHandler;
+import net.sf.seide.event.EventHandler;
+import net.sf.seide.message.Message;
 import net.sf.seide.stages.Stage;
 import net.sf.seide.stages.StageAware;
 import net.sf.seide.thread.JMXConfigurableThreadPoolExecutor;
@@ -59,13 +59,13 @@ public class DispatcherImpl
     // statistics
     private AtomicLong eventExecutionCount = new AtomicLong(0);
 
-    public void execute(String stage, Data data) {
-        this.execute(new Event(stage, data));
+    public void execute(String stage, Message message) {
+        this.execute(new Event(stage, message));
     }
 
     public void execute(Event event) {
         final String stage = event.getStage();
-        final Data data = event.getData();
+        final Message data = event.getMessage();
 
         if (this.shutdownRequired) {
             this.logger.info("Stage execution rejected for stage [" + stage + "], shutdown required!");
@@ -100,7 +100,7 @@ public class DispatcherImpl
                 + stageId);
 
             // minimal validation
-            EventHandler eventHandler = stage.getEventHandler();
+            EventHandler<?> eventHandler = stage.getEventHandler();
             if (eventHandler == null) {
                 throw new ConfigurationException(MessageFormat.format(
                     "EventHandler cannot be null, invalid configuration for stage [{0}@{1}]", stage.getId(), this.context));

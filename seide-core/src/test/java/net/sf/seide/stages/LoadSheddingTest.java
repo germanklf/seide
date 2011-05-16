@@ -9,6 +9,8 @@ import java.util.concurrent.CountDownLatch;
 
 import net.sf.seide.core.RuntimeStage;
 import net.sf.seide.core.impl.DispatcherImpl;
+import net.sf.seide.event.EventHandler;
+import net.sf.seide.message.Message;
 
 import org.junit.After;
 import org.junit.Assert;
@@ -84,9 +86,8 @@ public class LoadSheddingTest {
         stage.setMaxQueueSize(2);
         stage.setCoreThreads(2);
         stage.setMaxThreads(2);
-        stage.setEventHandler(new AbstractGenericEventHandler<Data>() {
-            @Override
-            protected RoutingOutcome exec(Data data) {
+        stage.setEventHandler(new EventHandler<Message>() {
+            public RoutingOutcome execute(Message message) {
                 try {
                     LoadSheddingTest.this.startAssertsLatch.countDown();
                     LoadSheddingTest.this.deterministicLatch.await();

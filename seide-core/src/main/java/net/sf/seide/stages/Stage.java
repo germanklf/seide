@@ -2,7 +2,7 @@ package net.sf.seide.stages;
 
 import net.sf.seide.controller.StageController;
 import net.sf.seide.controller.impl.DirectThreadPoolStageController;
-
+import net.sf.seide.event.EventHandler;
 
 public class Stage {
 
@@ -14,7 +14,7 @@ public class Stage {
     private int maxThreads = 25;
     private int maxQueueSize = 0;
 
-    private EventHandler eventHandler;
+    private EventHandler<?> eventHandler;
     private StageController controller = new DirectThreadPoolStageController();
 
     public String getContext() {
@@ -33,11 +33,11 @@ public class Stage {
         this.id = id;
     }
 
-    public EventHandler getEventHandler() {
+    public EventHandler<?> getEventHandler() {
         return this.eventHandler;
     }
 
-    public void setEventHandler(EventHandler eventHandler) {
+    public void setEventHandler(EventHandler<?> eventHandler) {
         this.eventHandler = eventHandler;
     }
 
