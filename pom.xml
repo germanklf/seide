@@ -11,7 +11,7 @@
 	<artifactId>seide</artifactId>
 	<packaging>pom</packaging>
 	<name>Seide Framework : Parent</name>
-	<version>r01</version>
+	<version>r02-SNAPSHOT</version>
 
 	<modules>
 		<module>seide-core</module>
@@ -48,12 +48,12 @@
 			<dependency>
 				<groupId>net.sf.seideframework</groupId>
 				<artifactId>seide-core</artifactId>
-				<version>r01</version>
+				<version>r02-SNAPSHOT</version>
 			</dependency>
 			<dependency>
 				<groupId>net.sf.seideframework</groupId>
 				<artifactId>seide-spring3</artifactId>
-				<version>r01</version>
+				<version>r02-SNAPSHOT</version>
 			</dependency>
 			<!-- Core dependencies -->
 			<dependency>
@@ -66,9 +66,9 @@
 	</dependencyManagement>
 
 	<scm>
-		<connection>scm:svn:https://seide.googlecode.com/svn/tags/r01</connection>
-		<developerConnection>scm:svn:https://seide.googlecode.com/svn/tags/r01</developerConnection>
-		<url>https://seide.googlecode.com/svn/tags/r01</url>
+		<connection>scm:svn:https://seide.googlecode.com/svn/trunk/</connection>
+		<developerConnection>scm:svn:https://seide.googlecode.com/svn/trunk/</developerConnection>
+		<url>https://seide.googlecode.com/svn/trunk/</url>
 	</scm>
 
 	<build>

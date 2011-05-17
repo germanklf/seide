@@ -4,12 +4,12 @@
 	<artifactId>seide-spring3</artifactId>
 	<name>Seide Framework : Spring 3 Support</name>
 	<packaging>jar</packaging>
-	<version>r01</version>
+	<version>r02-SNAPSHOT</version>
 
 	<parent>
 		<groupId>net.sf.seideframework</groupId>
 		<artifactId>seide</artifactId>
-		<version>r01</version>
+		<version>r02-SNAPSHOT</version>
 		<relativePath>../pom.xml</relativePath>
 	</parent>
 
