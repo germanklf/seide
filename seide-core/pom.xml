@@ -4,12 +4,12 @@
 	<artifactId>seide-core</artifactId>
 	<name>Seide Framework : Core</name>
 	<packaging>jar</packaging>
-	<version>r01-SNAPSHOT</version>
+	<version>r01</version>
 
 	<parent>
 		<groupId>net.sf.seideframework</groupId>
 		<artifactId>seide</artifactId>
-		<version>r01-SNAPSHOT</version>
+		<version>r01</version>
 		<relativePath>../pom.xml</relativePath>
 	</parent>
 

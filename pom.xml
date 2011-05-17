@@ -1,5 +1,4 @@
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
 
 	<parent>
 		<groupId>org.sonatype.oss</groupId>
@@ -12,7 +11,7 @@
 	<artifactId>seide</artifactId>
 	<packaging>pom</packaging>
 	<name>Seide Framework : Parent</name>
-	<version>r01-SNAPSHOT</version>
+	<version>r01</version>
 
 	<modules>
 		<module>seide-core</module>
@@ -49,12 +48,12 @@
 			<dependency>
 				<groupId>net.sf.seideframework</groupId>
 				<artifactId>seide-core</artifactId>
-				<version>r01-SNAPSHOT</version>
+				<version>r01</version>
 			</dependency>
 			<dependency>
 				<groupId>net.sf.seideframework</groupId>
 				<artifactId>seide-spring3</artifactId>
-				<version>r01-SNAPSHOT</version>
+				<version>r01</version>
 			</dependency>
 			<!-- Core dependencies -->
 			<dependency>
@@ -67,9 +66,9 @@
 	</dependencyManagement>
 
 	<scm>
-		<connection>scm:svn:https://seide.googlecode.com/svn/trunk/</connection>
-		<developerConnection>scm:svn:https://seide.googlecode.com/svn/trunk/</developerConnection>
-		<url>https://seide.googlecode.com/svn/trunk/</url>
+		<connection>scm:svn:https://seide.googlecode.com/svn/tags/r01</connection>
+		<developerConnection>scm:svn:https://seide.googlecode.com/svn/tags/r01</developerConnection>
+		<url>https://seide.googlecode.com/svn/tags/r01</url>
 	</scm>
 
 	<build>
