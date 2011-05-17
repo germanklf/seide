@@ -20,7 +20,7 @@ public class RunnableEventHandlerWrapper
     private final StageStatistics routingStageStats;
     @SuppressWarnings("rawtypes")
     private final EventHandler eventHandler;
-    private final JoinHandler joinHandler;
+    private final Event event;
 
     public RunnableEventHandlerWrapper(Dispatcher dispatcher, RuntimeStage runtimeStage, Event event) {
         this.dispatcher = dispatcher;
@@ -29,7 +29,7 @@ public class RunnableEventHandlerWrapper
         this.stageStats = runtimeStage.getStageStats();
         this.routingStageStats = runtimeStage.getRoutingStageStats();
         this.eventHandler = runtimeStage.getEventHandler();
-        this.joinHandler = (event instanceof JoinEvent) ? ((JoinEvent) event).getJoinHandler() : null;
+        this.event = event;
 
         // asume that a creating means a pending...
         this.stageStats.addPending();
@@ -78,8 +78,9 @@ public class RunnableEventHandlerWrapper
             this.routingStageStats.trackTimeAndExecution(System.nanoTime() - time);
             this.routingStageStats.removeRunning();
 
-            if (this.joinHandler != null) {
-                this.joinHandler.notifyChildOutcome(this.getRuntimeStage().getId(), returnMessage);
+            JoinHandler joinHandler = this.event.getJoinHandler();
+            if (joinHandler != null) {
+                joinHandler.notifyChildOutcome(this.getRuntimeStage().getId(), returnMessage);
             }
         }
     }
@@ -89,7 +90,7 @@ public class RunnableEventHandlerWrapper
         JoinHandler joinHandler = new JoinHandler(this.dispatcher, targetEvent);
         for (Event event : outcomeEvents) {
             // create a JoinEvent wrapping the JoinHandler...
-            joinEventWrappedCollection.add(new JoinEvent(event, joinHandler));
+            joinEventWrappedCollection.add(new Event(event, joinHandler));
 
             // register child, if not registered it could leak a join thread
             joinHandler.registerChild(this.eventHandler);
