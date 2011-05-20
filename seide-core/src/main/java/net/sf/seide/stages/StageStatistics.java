@@ -41,4 +41,6 @@ public interface StageStatistics {
 
     void trackTimeAndExecution(long time);
 
+    void trackTimeAndExecution(long time, boolean error);
+
 }

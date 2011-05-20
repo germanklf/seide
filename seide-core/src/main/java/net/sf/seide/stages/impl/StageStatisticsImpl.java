@@ -18,6 +18,8 @@ public class StageStatisticsImpl
 
     private final AtomicLong discardedExecutions = new AtomicLong(0);
 
+    private final AtomicLong errors = new AtomicLong(0);
+
     public StageStatisticsImpl(String context, String id) {
         this.context = context;
         this.id = id;
@@ -118,5 +120,12 @@ public class StageStatisticsImpl
         }
     }
 
+    @Override
+    public void trackTimeAndExecution(long time, boolean error) {
+        this.trackTimeAndExecution(time);
+        if (error) {
+            this.errors.incrementAndGet();
+        }
+    }
 
 }

@@ -10,8 +10,12 @@ import net.sf.seide.message.Message;
 import net.sf.seide.stages.RoutingOutcome;
 import net.sf.seide.stages.StageStatistics;
 
+import org.apache.log4j.Logger;
+
 public class RunnableEventHandlerWrapper
     implements Runnable {
+
+    private final static Logger LOGGER = Logger.getLogger(RunnableEventHandlerWrapper.class);
 
     private final Dispatcher dispatcher;
     private final RuntimeStage runtimeStage;
@@ -67,25 +71,33 @@ public class RunnableEventHandlerWrapper
                     Collection<Event> outcomeEvents = routingOutcome.getEvents();
                     if (routingOutcome.hasJoinEvent()) {
                         // configures an outcomeEvents list and attaches it to a JoinHandler firing the joinEvent.
-                        outcomeEvents = this.createJoinEventAttachedOf(outcomeEvents, routingOutcome.getJoinEvent());
+                        outcomeEvents = this.createWrappedJoinEventOf(outcomeEvents, routingOutcome.getJoinEvent());
                     }
 
                     // real firing here...
                     this.fireEvents(outcomeEvents);
                 }
             }
-        } finally {
+
+            // track the routing stats
             this.routingStageStats.trackTimeAndExecution(System.nanoTime() - time);
             this.routingStageStats.removeRunning();
+        } catch (Throwable t) {
+            // tracking & remove running...
+            this.stageStats.trackTimeAndExecution(System.nanoTime() - time, true);
+            this.stageStats.removeRunning();
 
+            LOGGER.error("Error ocurred while executing the EventHandler for stage [" + this.runtimeStage.getId() + "]", t);
+        } finally {
             JoinHandler joinHandler = this.event.getJoinHandler();
             if (joinHandler != null) {
                 joinHandler.notifyChildOutcome(this.getRuntimeStage().getId(), returnMessage);
+                LOGGER.debug("Firing up joinHandler for stage [" + this.runtimeStage.getId() + "]");
             }
         }
     }
 
-    private Collection<Event> createJoinEventAttachedOf(Collection<Event> outcomeEvents, Event targetEvent) {
+    private Collection<Event> createWrappedJoinEventOf(Collection<Event> outcomeEvents, Event targetEvent) {
         Collection<Event> joinEventWrappedCollection = new ArrayList<Event>(outcomeEvents.size());
         JoinHandler joinHandler = new JoinHandler(this.dispatcher, targetEvent);
         for (Event event : outcomeEvents) {

@@ -57,7 +57,7 @@ public class DispatcherImpl
         final String stage = event.getStage();
 
         if (this.shutdownRequired) {
-            this.LOGGER.info("Stage execution rejected for stage [" + stage + "], shutdown required!");
+            LOGGER.info("Stage execution rejected for stage [" + stage + "], shutdown required!");
             return;
         }
 
@@ -137,7 +137,7 @@ public class DispatcherImpl
 
             runtimeStage.getController().stop();
 
-            this.LOGGER.info("Stopping stage-controller for [" + stage + "]");
+            LOGGER.info("Stopping stage-controller for [" + stage + "]");
         }
 
         // clean up
