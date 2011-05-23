@@ -12,6 +12,7 @@ import net.sf.seide.core.ConfigurationException;
 import net.sf.seide.core.Dispatcher;
 import net.sf.seide.core.DispatcherAware;
 import net.sf.seide.core.DispatcherStatistics;
+import net.sf.seide.core.InvalidStageException;
 import net.sf.seide.core.JMXHelper;
 import net.sf.seide.core.RuntimeStage;
 import net.sf.seide.event.Event;
@@ -46,24 +47,30 @@ public class DispatcherImpl
     private volatile boolean started = false;
     private volatile boolean shutdownRequired = false;
 
+    private boolean throwExceptionOnInvalidStage = true;
+
     // statistics
     private AtomicLong eventExecutionCount = new AtomicLong(0);
 
-    public void execute(String stage, Message message) {
-        this.execute(new Event(stage, message));
+    public boolean execute(String stage, Message message) throws InvalidStageException {
+        return this.execute(new Event(stage, message));
     }
 
-    public void execute(Event event) {
+    public boolean execute(Event event) throws InvalidStageException {
         final String stage = event.getStage();
 
         if (this.shutdownRequired) {
             LOGGER.info("Stage execution rejected for stage [" + stage + "], shutdown required!");
-            return;
+            return false;
         }
 
         RuntimeStage runtimeStage = this.stagesMap.get(stage);
         if (runtimeStage == null) {
-            throw new RuntimeException("Stage [" + stage + "] is undefined.");
+            if (this.throwExceptionOnInvalidStage) {
+                throw new InvalidStageException(stage, "Stage is undefined!");
+            } else {
+                return false;
+            }
         }
 
         // delegate the execution to the underlying stage-controller
@@ -71,6 +78,8 @@ public class DispatcherImpl
 
         // track!
         this.eventExecutionCount.incrementAndGet();
+
+        return true;
     }
 
     public void start() {
@@ -125,6 +134,14 @@ public class DispatcherImpl
 
     public void setStages(List<Stage> stages) {
         this.stages = stages;
+    }
+
+    public void setThrowExceptionOnInvalidStage(boolean throwExceptionOnInvalidStage) {
+        this.throwExceptionOnInvalidStage = throwExceptionOnInvalidStage;
+    }
+
+    public boolean isThrowExceptionOnInvalidStage() {
+        return this.throwExceptionOnInvalidStage;
     }
 
     public void stop() {

@@ -23,16 +23,18 @@ public interface Dispatcher
      * 
      * @param stage {@link Stage#id}
      * @param message payload.
+     * @throws InvalidStageException
      */
-    void execute(String stage, Message message);
+    boolean execute(String stage, Message message) throws InvalidStageException;
 
     /**
      * Routes the {@link Event} to the specified {@link Stage} executing the associated {@link EventHandler}.
      * 
      * @param stage {@link Stage#id}
      * @param data payload.
+     * @throws InvalidStageException
      */
-    void execute(Event event);
+    boolean execute(Event event) throws InvalidStageException;
 
     /**
      * {@link Stage} list of supported flow {@link EventHandler}.
