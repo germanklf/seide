@@ -1,6 +1,7 @@
 package net.sf.seide.core.impl;
 
 import java.text.MessageFormat;
+import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -134,6 +135,10 @@ public class DispatcherImpl
 
     public void setStages(List<Stage> stages) {
         this.stages = stages;
+    }
+
+    public List<Stage> getStages() {
+        return Collections.unmodifiableList(this.stages);
     }
 
     public void setThrowExceptionOnInvalidStage(boolean throwExceptionOnInvalidStage) {

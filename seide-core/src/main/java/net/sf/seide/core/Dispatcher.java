@@ -44,6 +44,13 @@ public interface Dispatcher
     void setStages(List<Stage> stages);
 
     /**
+     * Gets the configured list of {@link Stage}s.
+     * 
+     * @return immutable list of mutable {@link Stage}s.
+     */
+    List<Stage> getStages();
+
+    /**
      * @return The dispatcher context identifier.
      */
     String getContext();
