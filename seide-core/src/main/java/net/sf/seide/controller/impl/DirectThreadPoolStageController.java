@@ -14,6 +14,7 @@ import net.sf.seide.core.TimeoutEnabled;
 import net.sf.seide.event.Event;
 import net.sf.seide.event.RunnableEventHandlerWrapper;
 import net.sf.seide.message.Message;
+import net.sf.seide.support.Beta;
 import net.sf.seide.thread.DefaultThreadPoolExecutorFactory;
 import net.sf.seide.thread.ThreadPoolExecutorFactory;
 
@@ -29,29 +30,46 @@ public class DirectThreadPoolStageController
 
     private static final Logger LOGGER = LoggerFactory.getLogger(DirectThreadPoolStageController.class);
 
-    private static final String THREAD_POOL_EXECUTOR_MXBEAN_PREFIX = "net.sf.seide.thread:type=ThreadPoolExecutor,name=tpe-";
+    public static final String THREAD_POOL_EXECUTOR_MXBEAN_PREFIX = "net.sf.seide.thread:type=ThreadPoolExecutor,name=tpe-";
 
-    private ThreadPoolExecutorFactory executorFactory = new DefaultThreadPoolExecutorFactory();
+    protected ThreadPoolExecutorFactory executorFactory = new DefaultThreadPoolExecutorFactory();
 
-    private Dispatcher dispatcher;
-    private RuntimeStage runtimeStage;
-    private ExecutorService executor;
+    protected Dispatcher dispatcher;
+    protected RuntimeStage runtimeStage;
+    protected ExecutorService executor;
 
-    private int timeout = -1;
-    private int configuredTimeout = this.timeout;
-    private int timeoutMonitorThreadCount = 1;
-    private ScheduledThreadPoolExecutor timeoutMonitorExecutor = null;
+    protected int timeout = -1;
+    protected int configuredTimeout = this.timeout;
+    protected int timeoutMonitorThreadCount = 1;
+    protected ScheduledThreadPoolExecutor timeoutMonitorExecutor = null;
 
-    private volatile boolean started = false;
-    private volatile boolean stopRequired = false;
+    protected volatile boolean started = false;
+    protected volatile boolean stopRequired = false;
 
     @Override
     public void execute(Event event) {
         Message message = event.getMessage();
-        RunnableEventHandlerWrapper runnable = new RunnableEventHandlerWrapper(this.dispatcher, this.runtimeStage, event);
+
+        // Allow to customize the runnable.
+        Runnable runnable = this
+            .customize(event, new RunnableEventHandlerWrapper(this.dispatcher, this.runtimeStage, event));
+        assert runnable != null : "Customized runnable cannot be null!";
+
         Future<?> future = this.executor.submit(runnable);
 
         this.handleTimeoutControl(message, future);
+    }
+
+    /**
+     * Customizable {@link Runnable} creation to wrap around the original {@link RunnableEventHandlerWrapper}. <br/>
+     * Expert use only!
+     * 
+     * @param event
+     * @return
+     */
+    @Beta
+    protected Runnable customize(Event event, RunnableEventHandlerWrapper originalRunnable) {
+        return originalRunnable;
     }
 
     private void handleTimeoutControl(final Message message, final Future<?> future) {
