@@ -88,6 +88,8 @@
 					<updateBranchVersions>true</updateBranchVersions>
 					<updateWorkingCopyVersions>true</updateWorkingCopyVersions>
 					<autoVersionSubmodules>true</autoVersionSubmodules>
+					<!-- See http://jira.codehaus.org/browse/SCM-406 -->
+					<remoteTagging>true</remoteTagging>
 				</configuration>
 			</plugin>
 			<!-- Use only for generation -->
