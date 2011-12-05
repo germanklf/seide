@@ -17,6 +17,7 @@ import org.apache.log4j.Logger;
 public class JoinHandler {
 
     private static final Logger LOGGER = Logger.getLogger(JoinHandler.class);
+    private static final boolean IS_DEBUG_ENABLED = LOGGER.isDebugEnabled();
 
     private final Dispatcher dispatcher;
     private final Event targetEvent;
@@ -34,11 +35,12 @@ public class JoinHandler {
         return this.targetEvent;
     }
 
-    public void registerChild(EventHandler<?> source) {
+    public void register(EventHandler<?> source) {
         this.expectedEvents.incrementAndGet();
     }
 
-    public void notifyChildOutcome(String stage, Message returnMessage) {
+    public void finished(Event event, Message returnMessage) {
+        String stage = event.getStage();
         if (returnMessage != null) {
             synchronized (this.collectedEvents) {
                 this.collectedEvents.add(new Event(stage, returnMessage));
@@ -53,6 +55,9 @@ public class JoinHandler {
                 this.collectedEvents);
             Event joinEvent = new Event(this.targetEvent.getStage(), joinEventCollection);
 
+            if (IS_DEBUG_ENABLED) {
+                LOGGER.debug("executing join event: " + joinEvent);
+            }
             this.dispatcher.execute(joinEvent);
         }
     }

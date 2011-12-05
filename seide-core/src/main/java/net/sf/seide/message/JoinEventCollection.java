@@ -17,12 +17,16 @@ public class JoinEventCollection
     protected final Message targetMessage;
 
     public JoinEventCollection(Message targetMessage, Collection<Event> events) {
-        this.events = new LinkedList<Event>(events);
+        if (events != null && !events.isEmpty()) {
+            this.events = Collections.unmodifiableCollection(new LinkedList<Event>(events));
+        } else {
+            this.events = null;
+        }
         this.targetMessage = targetMessage;
     }
 
     public Collection<Event> getEvents() {
-        return Collections.unmodifiableCollection(this.events);
+        return this.events;
     }
 
     public Message getTargetMessage() {

@@ -21,8 +21,10 @@ public class DispatcherThreadPoolExecutor
     extends ThreadPoolExecutor
     implements JMXEnabledThreadPoolExecutor, JMXConfigurableThreadPoolExecutor {
 
+    private static final int CORE_THREADS_TIMEOUT = 120;
+
     public DispatcherThreadPoolExecutor(String namePrefix) {
-        this(1, 1, Integer.MAX_VALUE, TimeUnit.SECONDS, new LinkedBlockingQueue<Runnable>(), new DefaultThreadFactory(
+        this(1, 1, CORE_THREADS_TIMEOUT, TimeUnit.SECONDS, new LinkedBlockingQueue<Runnable>(), new DefaultThreadFactory(
             namePrefix, Thread.NORM_PRIORITY), new DiscardPolicy());
     }
 
@@ -33,7 +35,7 @@ public class DispatcherThreadPoolExecutor
 
     public DispatcherThreadPoolExecutor(String namePrefix, int corePoolSize, int maximumPoolSize, int maxQueueSize,
         RejectedExecutionHandler handler) {
-        super(corePoolSize, maximumPoolSize, Integer.MAX_VALUE, TimeUnit.SECONDS, new LinkedBlockingQueue<Runnable>(
+        super(corePoolSize, maximumPoolSize, CORE_THREADS_TIMEOUT, TimeUnit.SECONDS, new LinkedBlockingQueue<Runnable>(
             maxQueueSize), new DefaultThreadFactory(namePrefix, Thread.NORM_PRIORITY), handler);
     }
 

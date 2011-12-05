@@ -22,6 +22,7 @@ public class RunnableEventHandlerWrapper
     private final Message message;
     private final StageStatistics stageStats;
     private final StageStatistics routingStageStats;
+
     @SuppressWarnings("rawtypes")
     private final EventHandler eventHandler;
     private final Event event;
@@ -35,7 +36,7 @@ public class RunnableEventHandlerWrapper
         this.eventHandler = runtimeStage.getEventHandler();
         this.event = event;
 
-        // asume that a creating means a pending...
+        // asume that "creating" one means: I'm "pending"...
         this.stageStats.addPending();
     }
 
@@ -51,9 +52,10 @@ public class RunnableEventHandlerWrapper
         time = System.nanoTime();
 
         Message returnMessage = null;
+        RoutingOutcome routingOutcome = null;
         try {
             // execution
-            RoutingOutcome routingOutcome = this.eventHandler.execute(this.message);
+            routingOutcome = this.eventHandler.execute(this.message);
 
             // tracking & remove running...
             this.stageStats.trackTimeAndExecution(System.nanoTime() - time);
@@ -91,7 +93,7 @@ public class RunnableEventHandlerWrapper
         } finally {
             JoinHandler joinHandler = this.event.getJoinHandler();
             if (joinHandler != null) {
-                joinHandler.notifyChildOutcome(this.getRuntimeStage().getId(), returnMessage);
+                joinHandler.finished(this.event, returnMessage);
                 LOGGER.debug("Firing up joinHandler for stage [" + this.runtimeStage.getId() + "]");
             }
         }
@@ -105,7 +107,7 @@ public class RunnableEventHandlerWrapper
             joinEventWrappedCollection.add(new Event(event, joinHandler));
 
             // register child, if not registered it could leak a join thread
-            joinHandler.registerChild(this.eventHandler);
+            joinHandler.register(this.eventHandler);
         }
         return joinEventWrappedCollection;
     }
@@ -114,6 +116,14 @@ public class RunnableEventHandlerWrapper
         for (Event e : outcomeEvents) {
             this.dispatcher.execute(e);
         }
+    }
+
+    public Event getEvent() {
+        return this.event;
+    }
+
+    public EventHandler<?> getEventHandler() {
+        return this.eventHandler;
     }
 
     public RuntimeStage getRuntimeStage() {

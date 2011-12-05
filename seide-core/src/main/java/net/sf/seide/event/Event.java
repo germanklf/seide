@@ -1,5 +1,7 @@
 package net.sf.seide.event;
 
+import java.util.UUID;
+
 import net.sf.seide.message.JoinHandler;
 import net.sf.seide.message.Message;
 import net.sf.seide.stages.Stage;
@@ -14,6 +16,7 @@ import net.sf.seide.stages.Stage;
  */
 public class Event {
 
+    protected final String id;
     protected final String stage;
     protected final Message message;
     protected final JoinHandler joinHandler;
@@ -30,6 +33,11 @@ public class Event {
         this.stage = stage;
         this.message = message;
         this.joinHandler = joinHandler;
+        this.id = UUID.randomUUID().toString(); // experimental by now.
+    }
+
+    public String getId() {
+        return this.id;
     }
 
     public String getStage() {
@@ -44,4 +52,8 @@ public class Event {
         return this.joinHandler;
     }
 
+    @Override
+    public String toString() {
+        return "Event[stage:" + this.stage + "; id:" + this.id + "]";
+    }
 }

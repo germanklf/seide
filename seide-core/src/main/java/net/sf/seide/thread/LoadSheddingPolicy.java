@@ -20,7 +20,7 @@ public class LoadSheddingPolicy
 
     public void rejectedExecution(Runnable r, ThreadPoolExecutor executor) {
         this.runtimeStage.getStageStats().trackDiscardedExecution();
-        LOGGER.debug("Discarded execution...");
+        LOGGER.info("Discarded execution for stage [" + this.runtimeStage.getId() + "]...");
     }
 
     public void setStageContext(RuntimeStage runtimeStage) {
