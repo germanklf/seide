@@ -1,4 +1,5 @@
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
 
 	<parent>
 		<groupId>org.sonatype.oss</groupId>
@@ -7,11 +8,11 @@
 	</parent>
 
 	<modelVersion>4.0.0</modelVersion>
-	<groupId>net.sf.seideframework</groupId>
+	<groupId>org.seideframework</groupId>
 	<artifactId>seide</artifactId>
 	<packaging>pom</packaging>
 	<name>Seide Framework : Parent</name>
-	<version>0.3-SNAPSHOT</version>
+	<version>1.0.0-SNAPSHOT</version>
 
 	<modules>
 		<module>seide-core</module>
@@ -46,14 +47,14 @@
 		<dependencies>
 			<!-- Synchronized internal dependencies -->
 			<dependency>
-				<groupId>net.sf.seideframework</groupId>
+				<groupId>org.seideframework</groupId>
 				<artifactId>seide-core</artifactId>
-				<version>0.3-SNAPSHOT</version>
+				<version>1.0.0-SNAPSHOT</version>
 			</dependency>
 			<dependency>
-				<groupId>net.sf.seideframework</groupId>
+				<groupId>org.seideframework</groupId>
 				<artifactId>seide-spring3</artifactId>
-				<version>0.3-SNAPSHOT</version>
+				<version>1.0.0-SNAPSHOT</version>
 			</dependency>
 			<!-- Core dependencies -->
 			<dependency>
