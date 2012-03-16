@@ -1,0 +1,8 @@
+.project
+.classpath
+**/.project
+**/.classpath
+bin
+target
+**/bin
+**/target
